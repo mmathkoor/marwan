@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحضير دروس - الأرض الطيبة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>تحضير دروس - الأرض الطيبة (مطور)</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+        @import url('[https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap](https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap)');
         
         body {
             font-family: 'Tajawal', sans-serif;
@@ -33,40 +33,6 @@
             background-color: #eff6ff;
         }
 
-        /* تنسيقات الطباعة الاحترافية */
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 10mm;
-            }
-            body {
-                background-color: white;
-            }
-            .no-print { display: none !important; }
-            
-            textarea, input {
-                border: none !important;
-                background-color: transparent !important;
-                padding: 0;
-            }
-
-            .print-border-black {
-                border-color: black !important;
-            }
-            
-            /* تكرار رأس الجدول في كل صفحة */
-            thead {
-                display: table-header-group;
-            }
-            /* منع انقسام الصف بين صفحتين قدر الإمكان */
-            tr {
-                page-break-inside: avoid;
-            }
-            
-            .shadow-lg { box-shadow: none !important; }
-            .bg-white { background-color: transparent !important; }
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -84,74 +50,121 @@
             font-weight: bold;
             font-size: 0.9rem;
         }
-        
+
+        /* ----------------------------------------- */
+        /* إعدادات الطباعة الاحترافية (A4 أفقي وصفحة واحدة) */
+        /* ----------------------------------------- */
         @media print {
-            th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
+            @page {
+                size: A4 landscape; /* الإجبار على A4 أفقي */
+                margin: 5mm; /* تقليل الهوامش لأقصى حد مسموح */
+            }
+            
+            body {
+                background-color: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .no-print { display: none !important; }
+            
+            /* إزالة الحدود من الحقول عند الطباعة */
+            textarea, input {
+                border: none !important;
+                background-color: transparent !important;
+                padding: 0;
+            }
+
+            /* تصغير المسافات والخطوط لضمان احتواء المحتوى في صفحة واحدة */
+            .print-fit-page {
+                zoom: 0.90; /* تصغير المحتوى بنسبة 10% للطباعة */
+                margin: 0 auto;
+            }
+
+            th, td {
+                padding: 2px !important; /* تقليل حشوة الخلايا */
+                font-size: 13px !important; /* تصغير الخط قليلاً */
+            }
+            
+            textarea {
+                font-size: 14px !important;
+                line-height: 1.3 !important;
+            }
+
+            .print-mt-small { margin-top: 10px !important; }
+            .print-mb-small { margin-bottom: 5px !important; }
+            
+            /* منع انقسام الصفوف إن أمكن */
+            tr { page-break-inside: avoid; }
+            
+            .shadow-lg { box-shadow: none !important; }
         }
     </style>
 </head>
 <body class="p-2 md:p-4">
 
     <!-- لوحة التحكم (لا تظهر في الطباعة) -->
-    <div class="max-w-7xl mx-auto mb-4 p-4 bg-white rounded-lg shadow-md no-print flex flex-wrap gap-2 justify-between items-center sticky top-0 z-50">
-        <h1 class="font-bold text-xl text-blue-800">نظام التحضير الذكي</h1>
+    <div class="max-w-7xl mx-auto mb-4 p-4 bg-white rounded-lg shadow-md no-print flex flex-wrap gap-2 justify-between items-center sticky top-0 z-50 border-b-4 border-purple-600">
+        <h1 class="font-bold text-xl text-blue-800">نظام التحضير المطور ⚡</h1>
         <div class="flex gap-2">
-            <button onclick="openImportModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-1 shadow">
-                ✨ استيراد بالذكاء الاصطناعي
+            <button onclick="openImportModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-1 shadow transition-colors">
+                ✨ استيراد ذكي
             </button>
-            <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-1 shadow">
-                🖨️ طباعة / PDF
+            <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-1 shadow transition-colors">
+                🖨️ طباعة (A4 أفقي)
             </button>
         </div>
     </div>
 
     <!-- نافذة الاستيراد المنبثقة -->
-    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-2xl">
-            <h2 class="text-lg font-bold mb-4 text-purple-700">الصق كود JSON هنا</h2>
-            <p class="text-sm text-gray-600 mb-2">قم بنسخ الرد الذي أعطاك إياه الذكاء الاصطناعي والصقه في المربع بالأسفل:</p>
-            <textarea id="jsonInput" class="w-full h-48 border-2 border-gray-300 p-2 rounded mb-4" dir="ltr" placeholder='{"header": {...}, "rows": [...], "footer": {...}}'></textarea>
-            <div class="flex justify-end gap-2">
-                <button onclick="closeImportModal()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 font-bold">إلغاء</button>
-                <button onclick="processJSON()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 font-bold">تطبيق البيانات</button>
+    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center p-4 no-print backdrop-blur-sm">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-2xl transform transition-all">
+            <h2 class="text-xl font-bold mb-2 text-purple-700">استيراد التحضير</h2>
+            <p class="text-sm text-gray-600 mb-4 bg-purple-50 p-2 rounded border border-purple-100">
+                الصق النص المنسوخ من الذكاء الاصطناعي هنا. لا تقلق بشأن الرموز الزائدة، النظام سيقوم بتنظيفها تلقائياً.
+            </p>
+            <textarea id="jsonInput" class="w-full h-56 border-2 border-purple-200 focus:border-purple-500 p-3 rounded mb-4 shadow-inner" dir="ltr" placeholder='الصق الكود هنا...'></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeImportModal()" class="px-5 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 font-bold transition-colors">إلغاء</button>
+                <button onclick="processJSON()" class="px-5 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 font-bold shadow-md transition-colors">🚀 تطبيق التحضير</button>
             </div>
         </div>
     </div>
 
     <!-- ورقة التحضير -->
-    <div class="max-w-[297mm] mx-auto bg-white p-4 shadow-lg print:p-0 print:shadow-none min-h-[210mm] text-sm" id="documentArea">
+    <div class="max-w-[297mm] mx-auto bg-white p-4 shadow-lg min-h-[210mm] text-sm print-fit-page" id="documentArea">
         
         <!-- الترويسة -->
-        <div class="grid grid-cols-4 md:grid-cols-7 gap-1 mb-2 border border-black p-2 font-bold bg-gray-50 print:bg-gray-50 text-center items-center" style="-webkit-print-color-adjust: exact;">
+        <div class="grid grid-cols-4 md:grid-cols-7 gap-1 mb-2 print-mb-small border border-black p-2 font-bold bg-gray-50 text-center items-center">
             <div class="flex flex-col border-l border-black px-1">
                 <span>المادة</span>
-                <input type="text" id="h-subject" class="text-center text-blue-700 !border-none !p-0" value="رياضيات">
+                <input type="text" id="h-subject" class="text-center text-blue-800 !border-none !p-0 font-bold" value="الرياضيات">
             </div>
             <div class="flex flex-col border-l border-black px-1">
                 <span>الصف</span>
-                <input type="text" id="h-grade" class="text-center text-blue-700 !border-none !p-0" value="الأول الأساسي">
+                <input type="text" id="h-grade" class="text-center text-blue-800 !border-none !p-0 font-bold" value="الأول الأساسي">
             </div>
             <div class="flex flex-col border-l border-black px-1 col-span-2">
                 <span>عنوان الدرس</span>
-                <input type="text" id="h-title" class="text-center text-blue-700 !border-none !p-0" value="حقائق الجمع حتى 9">
+                <input type="text" id="h-title" class="text-center text-blue-800 !border-none !p-0 font-bold" value="حقائق الجمع حتى 9">
             </div>
             <div class="flex flex-col border-l border-black px-1">
                 <span>الحصة</span>
-                <input type="text" id="h-period" class="text-center text-blue-700 !border-none !p-0" value="الأولى">
+                <input type="text" id="h-period" class="text-center text-blue-800 !border-none !p-0 font-bold" value="الأولى">
             </div>
             <div class="flex flex-col border-l border-black px-1">
                 <span>التاريخ</span>
-                <input type="text" id="h-date" class="text-center text-blue-700 !border-none !p-0" value="..../..../2024م">
+                <input type="text" id="h-date" class="text-center text-blue-800 !border-none !p-0 font-bold" value="..../..../2024م">
             </div>
             <div class="flex flex-col px-1">
                 <span>الزمن</span>
-                <input type="text" id="h-time" class="text-center text-blue-700 !border-none !p-0" value="45 دقيقة">
+                <input type="text" id="h-time" class="text-center text-blue-800 !border-none !p-0 font-bold" value="45 دقيقة">
             </div>
         </div>
 
-        <div class="flex border border-black mb-2 p-1">
+        <div class="flex border border-black mb-2 print-mb-small p-1 bg-white">
             <span class="font-bold w-20 shrink-0">التمهيد:</span>
-            <input type="text" id="h-intro" class="w-full !border-none !p-0 text-blue-800" value="ما ناتج جمع 4 + 3 = [ ] ، 2 + 5 = [ ]">
+            <input type="text" id="h-intro" class="w-full !border-none !p-0 text-blue-800 font-bold" value="ما ناتج جمع 4 + 3 = [ ] ، 2 + 5 = [ ]">
         </div>
 
         <!-- الجدول الرئيسي -->
@@ -161,52 +174,52 @@
                     <tr>
                         <th class="w-[8%]">العنصر</th>
                         <th class="w-[10%]">المجال / المستوى</th>
-                        <th class="w-[15%]">الهدف</th>
+                        <th class="w-[16%]">الهدف</th>
                         <th class="w-[12%]">استراتيجيات التعلم</th>
-                        <th class="w-[15%]">دور المعلم والوسائل</th>
+                        <th class="w-[16%]">دور المعلم والوسائل</th>
                         <th class="w-[15%]">دور المتعلم</th>
-                        <th class="w-[15%]">التقويم البنائي</th>
+                        <th class="w-[13%]">التقويم البنائي</th>
                         <th class="w-[10%]">الملخص السبوري</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- الصفوف ستضاف هنا بواسطة جافاسكربت -->
+                    <!-- الصفوف الديناميكية -->
                 </tbody>
             </table>
         </div>
 
         <!-- زر إضافة صف جديد (مخفي في الطباعة) -->
         <div class="mt-2 text-center no-print">
-            <button onclick="addRow()" class="bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 px-4 py-1 rounded text-sm font-bold">
+            <button onclick="addRow()" class="bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 px-6 py-1.5 rounded-full text-sm font-bold shadow-sm transition-colors">
                 + إضافة صف جديد للجدول
             </button>
         </div>
 
         <!-- التذييل (التقويم الختامي والواجب) -->
-        <div class="mt-4 border-2 border-black p-2 text-sm">
-            <div class="flex mb-2">
+        <div class="mt-3 print-mt-small border-2 border-black p-2 text-sm bg-white">
+            <div class="flex mb-1">
                 <span class="font-bold w-32 shrink-0">التقويم الختامي:</span>
-                <textarea id="f-eval" class="!border-none !p-0 text-blue-800" oninput="autoResize(this)">نشاط: حل أسئلة اختبر نفسك في الكتاب المدرسي صـ (   )</textarea>
+                <textarea id="f-eval" class="!border-none !p-0 text-blue-800 font-bold" oninput="autoResize(this)">نشاط: حل أسئلة اختبر نفسك في الكتاب المدرسي صـ (   )</textarea>
             </div>
-            <div class="flex mb-2">
+            <div class="flex mb-1">
                 <span class="font-bold w-32 shrink-0">إغلاق الدرس:</span>
-                <textarea id="f-close" class="!border-none !p-0 text-blue-800" oninput="autoResize(this)">توجيه المتعلمين نحو تدوين الملخص السبوري في دفاترهم - التأكيد على الأفكار الرئيسية - إتاحة الفرص للاستفسار - تدوين درجات المشاركة وشكر المتعلمين على تفاعلهم.</textarea>
+                <textarea id="f-close" class="!border-none !p-0 text-blue-800 font-bold" oninput="autoResize(this)">توجيه المتعلمين نحو تدوين الملخص السبوري في دفاترهم - التأكيد على الأفكار الرئيسية - إتاحة الفرص للاستفسار - تدوين درجات المشاركة وشكر المتعلمين على تفاعلهم.</textarea>
             </div>
             <div class="flex">
                 <span class="font-bold w-32 shrink-0">الواجب المنزلي:</span>
-                <textarea id="f-hw" class="!border-none !p-0 text-blue-800" oninput="autoResize(this)">حل الواجب المنزلي صـ (   )</textarea>
+                <textarea id="f-hw" class="!border-none !p-0 text-blue-800 font-bold" oninput="autoResize(this)">حل الواجب المنزلي صـ (   )</textarea>
             </div>
         </div>
 
         <!-- التوقيعات -->
-        <div class="grid grid-cols-3 gap-4 mt-8 text-center font-bold text-sm print:mt-auto">
-            <div>
+        <div class="grid grid-cols-3 gap-4 mt-6 print-mt-small text-center font-bold text-sm">
+            <div class="pt-4 border-t-2 border-transparent">
                 <p>اعتماد متابعة الإشراف الإداري</p>
             </div>
-            <div>
+            <div class="pt-4 border-t-2 border-transparent">
                 <p>اعتماد متابعة الإشراف التربوي</p>
             </div>
-            <div>
+            <div class="pt-4 border-t-2 border-transparent">
                 <p>اعتماد متابعة إدارة المدرسة</p>
             </div>
         </div>
@@ -214,49 +227,45 @@
     </div>
 
     <script>
-        // --- دوال التحكم في حجم مربعات النص ---
+        // تكبير النص تلقائياً
         function autoResize(element) {
             element.style.height = 'auto';
             element.style.height = element.scrollHeight + 'px';
         }
 
         function initTextareas() {
-            document.querySelectorAll('textarea').forEach(ta => {
+            document.querySelectorAll('textarea:not(#jsonInput)').forEach(ta => {
                 autoResize(ta);
                 ta.addEventListener('input', function() { autoResize(this); });
             });
         }
 
-        // --- دوال إدارة الجدول الديناميكي ---
+        // إدارة الجدول
         let rowCount = 0;
 
         function addRow(data = null) {
             const tbody = document.getElementById('tableBody');
             const tr = document.createElement('tr');
             
-            // بيانات افتراضية إذا لم يتم تمرير بيانات
-            const defaultData = {
-                element: '', level: '', goal: '', strategy: '', teacherRole: '', studentRole: '', eval: ''
-            };
+            const defaultData = { element: '', level: '', goal: '', strategy: '', teacherRole: '', studentRole: '', eval: '' };
             const rowData = data || defaultData;
 
             let html = `
-                <td class="relative group">
-                    <textarea placeholder="العنصر">${rowData.element}</textarea>
-                    <button onclick="removeRow(this)" class="absolute top-1 right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full hidden group-hover:block no-print" title="حذف الصف">×</button>
+                <td class="relative group p-1">
+                    <textarea placeholder="العنصر" class="text-center font-bold">${rowData.element}</textarea>
+                    <button onclick="removeRow(this)" class="absolute top-0 right-0 bg-red-500 text-white text-xs w-5 h-5 rounded-full hidden group-hover:flex items-center justify-center no-print shadow" title="حذف الصف">×</button>
                 </td>
-                <td><textarea placeholder="المجال" class="font-bold">${rowData.level}</textarea></td>
-                <td><textarea placeholder="الهدف">${rowData.goal}</textarea></td>
-                <td><textarea placeholder="استراتيجيات">${rowData.strategy}</textarea></td>
-                <td><textarea placeholder="دور المعلم">${rowData.teacherRole}</textarea></td>
-                <td><textarea placeholder="دور المتعلم">${rowData.studentRole}</textarea></td>
-                <td><textarea placeholder="التقويم">${rowData.eval}</textarea></td>
+                <td class="p-1"><textarea placeholder="المجال" class="text-center font-bold">${rowData.level}</textarea></td>
+                <td class="p-1"><textarea placeholder="الهدف">${rowData.goal}</textarea></td>
+                <td class="p-1"><textarea placeholder="استراتيجيات" class="text-center">${rowData.strategy}</textarea></td>
+                <td class="p-1"><textarea placeholder="دور المعلم">${rowData.teacherRole}</textarea></td>
+                <td class="p-1"><textarea placeholder="دور المتعلم">${rowData.studentRole}</textarea></td>
+                <td class="p-1"><textarea placeholder="التقويم" class="text-center">${rowData.eval}</textarea></td>
             `;
 
-            // الخلية الخاصة بالملخص السبوري تظهر فقط في الصف الأول وتتوسع
             if (rowCount === 0) {
-                const boardContent = data && data.board ? data.board : "🍎🍎🍎 + 🍎 = 4\n3 + 1 = 4\n\n🍎🍎 + 🍎🍎 = 4\n2 + 2 = 4\n\n🍎🍎🍎 + صفر = 3\n3 + 0 = 3";
-                html += `<td id="boardCell" rowspan="1"><textarea id="f-board" class="h-full min-h-[150px] text-center font-bold text-lg text-red-600" placeholder="الملخص">${boardContent}</textarea></td>`;
+                const boardContent = data && data.board ? data.board : "🍎🍎🍎 + 🍎 = 4\n3 + 1 = 4\n\n🍎🍎 + 🍎🍎 = 4\n2 + 2 = 4";
+                html += `<td id="boardCell" rowspan="1" class="p-1"><textarea id="f-board" class="h-full min-h-[120px] text-center font-bold text-lg text-red-600" placeholder="الملخص السبوري">${boardContent}</textarea></td>`;
             }
 
             tr.innerHTML = html;
@@ -267,15 +276,12 @@
         }
 
         function removeRow(btn) {
-            if(rowCount <= 1) return alert('لا يمكن حذف كل الصفوف!');
+            if(rowCount <= 1) return alert('يجب أن يحتوي الجدول على صف واحد على الأقل.');
             const row = btn.closest('tr');
-            
-            // إذا كان الصف المحذوف هو الأول، نحتاج لنقل خلية الملخص للصف الذي يليه
             if(row.rowIndex === 1 && row.nextElementSibling) {
                 const boardCell = document.getElementById('boardCell');
                 row.nextElementSibling.appendChild(boardCell);
             }
-            
             row.remove();
             rowCount--;
             updateRowSpan();
@@ -288,72 +294,76 @@
             }
         }
 
-        // --- دوال الاستيراد الذكي ---
-        function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); }
+        // --- المعالجة الذكية لـ JSON (لحل مشكلة الخطأ) ---
+        function openImportModal() { 
+            document.getElementById('importModal').classList.remove('hidden'); 
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('jsonInput').focus();
+        }
+        
         function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
 
         function processJSON() {
-            try {
-                const jsonText = document.getElementById('jsonInput').value;
-                const data = JSON.parse(jsonText);
+            let rawText = document.getElementById('jsonInput').value;
+            
+            if(!rawText.trim()) {
+                alert('الرجاء لصق الكود أولاً.');
+                return;
+            }
 
-                // تعبئة الترويسة
+            try {
+                // 1. التنظيف الذكي: استخراج ما بين أول قوس { وآخر قوس } لتجاهل أي نصوص أو رموز مثل ```json
+                let cleanJson = rawText;
+                const firstBraceIndex = cleanJson.indexOf('{');
+                const lastBraceIndex = cleanJson.lastIndexOf('}');
+                
+                if (firstBraceIndex !== -1 && lastBraceIndex !== -1) {
+                    cleanJson = cleanJson.substring(firstBraceIndex, lastBraceIndex + 1);
+                }
+
+                // 2. تحويل النص إلى بيانات
+                const data = JSON.parse(cleanJson);
+
+                // 3. تعبئة الحقول
                 if(data.header) {
                     if(data.header.subject) document.getElementById('h-subject').value = data.header.subject;
                     if(data.header.grade) document.getElementById('h-grade').value = data.header.grade;
                     if(data.header.title) document.getElementById('h-title').value = data.header.title;
                     if(data.header.period) document.getElementById('h-period').value = data.header.period;
-                    if(data.header.date) document.getElementById('h-date').value = data.header.date;
-                    if(data.header.time) document.getElementById('h-time').value = data.header.time;
                     if(data.header.intro) document.getElementById('h-intro').value = data.header.intro;
                 }
 
-                // تعبئة الجدول
                 if(data.rows && Array.isArray(data.rows)) {
-                    document.getElementById('tableBody').innerHTML = ''; // مسح الحالي
+                    document.getElementById('tableBody').innerHTML = ''; 
                     rowCount = 0;
                     data.rows.forEach((r, index) => {
-                        // دمج الملخص السبوري في أول صف فقط
                         if(index === 0 && data.board) r.board = data.board;
                         addRow(r);
                     });
                 }
 
-                // تعبئة التذييل
                 if(data.footer) {
-                    if(data.footer.eval) {
-                        const el = document.getElementById('f-eval');
-                        el.value = data.footer.eval;
-                        autoResize(el);
-                    }
-                    if(data.footer.close) {
-                        const el = document.getElementById('f-close');
-                        el.value = data.footer.close;
-                        autoResize(el);
-                    }
-                    if(data.footer.hw) {
-                        const el = document.getElementById('f-hw');
-                        el.value = data.footer.hw;
-                        autoResize(el);
-                    }
+                    if(data.footer.eval) document.getElementById('f-eval').value = data.footer.eval;
+                    if(data.footer.close) document.getElementById('f-close').value = data.footer.close;
+                    if(data.footer.hw) document.getElementById('f-hw').value = data.footer.hw;
+                    initTextareas(); // تحديث أحجام المربعات السفلية
                 }
 
                 closeImportModal();
-                document.getElementById('jsonInput').value = '';
-                alert('تم استيراد الدرس بنجاح!');
+                alert('✅ تم استيراد وتحضير الدرس بنجاح!');
 
             } catch (e) {
-                alert('عذراً، يوجد خطأ في كود الـ JSON المنسوخ. تأكد من نسخه بالكامل.');
-                console.error(e);
+                alert('⚠️ عذراً، يبدو أن النص المنسوخ غير مكتمل أو به خطأ. حاول نسخ رد الذكاء الاصطناعي من جديد بالكامل.');
+                console.error("JSON Error:", e);
             }
         }
 
-        // تهيئة المثال الافتراضي عند التحميل
+        // تهيئة المثال الافتراضي
         window.onload = function() {
             const initialData = [
-                { element: "مقدمة الدرس", level: "معرفي (تذكر)", goal: "أن يتعرف التلميذ على حقيقة الجمع من خلال الصور", strategy: "العصف الذهني\nالحوار والمناقشة", teacherRole: "عرض الصور\nإثارة التفكير\nمناقشة الصور لتقديم المفهوم المناسب", studentRole: "المشاهدة\nتركيز الانتباه\nالمشاركة الفعالة\nالاستماع للمعلم", eval: "كم تفاحة في هذه المجموعة؟\nوما عدد الكل؟" },
-                { element: "عرض الدرس", level: "مهاري (تطبيق)", goal: "أن يكتب التلميذ جملة الجمع صحيحة لصور معطاة", strategy: "السبورة\nالملاحظة\nالتدريب", teacherRole: "توضيح طريقة صياغة جملة الجمع للصور\nحل أمثلة متنوعة\nتقديم التغذية الراجعة", studentRole: "المشاهدة والانتباه\nالاستماع\nالمشاركة في حل التدريبات وتعديل الأخطاء", eval: "اكتب جملة الجمع الممثلة بالصور التي أمامك" },
-                { element: "خاتمة الدرس", level: "وجداني (استجابة)", goal: "أن يجيب التلميذ عن تدريبات الدرس بحماس وتفاعل", strategy: "التطبيق الفردي\nالكتاب المدرسي", teacherRole: "حل التدريبات مع التلاميذ وتوجيههم وتصحيح الأخطاء", studentRole: "الانتباه\nالاستماع\nحل التدريبات\nتعديل الأخطاء", eval: "شارك في حل التدريب رقم ( )" }
+                { element: "مقدمة الدرس", level: "معرفي (تذكر)", goal: "أن يتعرف التلميذ على حقيقة الجمع من خلال الصور.", strategy: "العصف الذهني\nالحوار والمناقشة", teacherRole: "عرض الصور\nإثارة التفكير\nمناقشة الصور لتقديم المفهوم المناسب.", studentRole: "المشاهدة\nتركيز الانتباه\nالمشاركة الفعالة\nالاستماع للمعلم.", eval: "كم تفاحة في هذه المجموعة؟ وما عدد الكل؟" },
+                { element: "عرض الدرس", level: "مهاري (تطبيق)", goal: "أن يكتب التلميذ جملة الجمع صحيحة لصور معطاة.", strategy: "السبورة\nالملاحظة\nالتدريب", teacherRole: "توضيح طريقة صياغة جملة الجمع للصور\nحل أمثلة متنوعة\nتقديم التغذية الراجعة.", studentRole: "المشاهدة والانتباه\nالاستماع\nالمشاركة في حل التدريبات وتعديل الأخطاء.", eval: "اكتب جملة الجمع الممثلة بالصور التي أمامك." },
+                { element: "خاتمة الدرس", level: "وجداني (استجابة)", goal: "أن يجيب التلميذ عن تدريبات الدرس بحماس وتفاعل.", strategy: "التطبيق الفردي\nالكتاب المدرسي", teacherRole: "حل التدريبات مع التلاميذ وتوجيههم وتصحيح الأخطاء.", studentRole: "الانتباه\nالاستماع\nحل التدريبات\nتعديل الأخطاء.", eval: "شارك في حل التدريب رقم ( )." }
             ];
             initialData.forEach(row => addRow(row));
         };
