@@ -1,0 +1,182 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دفتر تحضير الدروس - الأستاذ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3f4f6;
+        }
+        textarea {
+            resize: none;
+            overflow: hidden;
+            min-height: 60px;
+        }
+        /* إعدادات الطباعة وتحويل الـ PDF */
+        @media print {
+            body { background-color: white; }
+            .no-print { display: none !important; }
+            input, textarea {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                resize: none;
+            }
+            .print-border { border: 1px solid #000 !important; }
+            @page { size: landscape; margin: 1cm; }
+        }
+    </style>
+</head>
+<body class="p-2 md:p-6 text-gray-800">
+
+    <div class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg print:shadow-none print:p-0">
+        
+        <!-- Header Controls -->
+        <div class="flex justify-between items-center mb-6 no-print border-b pb-4">
+            <h1 class="text-2xl font-bold text-green-700">قالب تحضير الدروس الذكي</h1>
+            <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow">
+                حفظ كـ PDF / طباعة
+            </button>
+        </div>
+
+        <!-- Document Header (معلومات الدرس) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 text-sm md:text-base">
+            <div class="flex items-center gap-2">
+                <label class="font-bold whitespace-nowrap">المادة:</label>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1" value="الرياضيات / لغتي / ...">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="font-bold whitespace-nowrap">الصف:</label>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1" value="الأول الأساسي">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="font-bold whitespace-nowrap">عنوان الدرس:</label>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="font-bold whitespace-nowrap">التاريخ:</label>
+                <input type="date" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="font-bold whitespace-nowrap">الحصة:</label>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1">
+            </div>
+             <div class="flex items-center gap-2 col-span-2 md:col-span-3">
+                <label class="font-bold whitespace-nowrap">التمهيد:</label>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-green-500 outline-none w-full p-1" placeholder="اكتب تمهيد الدرس هنا...">
+            </div>
+        </div>
+
+        <!-- Main Table -->
+        <div class="overflow-x-auto print:overflow-visible w-full">
+            <table class="w-full text-center border-collapse border border-gray-800 print-border min-w-[800px]">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="border border-gray-800 p-2 print-border w-1/12">العنصر</th>
+                        <th class="border border-gray-800 p-2 print-border w-1/12">المجال / المستوى</th>
+                        <th class="border border-gray-800 p-2 print-border w-2/12">الهدف</th>
+                        <th class="border border-gray-800 p-2 print-border w-1/12">استراتيجيات التعلم</th>
+                        <th class="border border-gray-800 p-2 print-border w-2/12">دور المعلم والوسائل</th>
+                        <th class="border border-gray-800 p-2 print-border w-2/12">دور المتعلم</th>
+                        <th class="border border-gray-800 p-2 print-border w-1/12">التقويم البنائي</th>
+                        <th class="border border-gray-800 p-2 print-border w-2/12">الملخص السبوري</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Row 1: معرفي -->
+                    <tr>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">مقدمة الدرس</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center font-bold" oninput="autoResize(this)">معرفي (تذكر)</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="أن يسمي الطالب..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">العصف الذهني / الحوار</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="عرض صور..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="المشاهدة والمشاركة..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)" placeholder="س: ماذا ترى؟"></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border align-top" rowspan="3">
+                            <textarea class="w-full h-full min-h-[150px]" oninput="autoResize(this)" placeholder="اكتب ما سيكتب على السبورة هنا (يمكنك استخدام الإيموجي للرسومات)"></textarea>
+                        </td>
+                    </tr>
+                    <!-- Row 2: مهاري -->
+                    <tr>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">عرض الدرس</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center font-bold" oninput="autoResize(this)">مهاري (إبداع)</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="أن يرسم أو يكتب..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">التعلم التعاوني / السبورة</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="توضيح طريقة الرسم..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="التطبيق العملي..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)" placeholder="ارسم الشكل..."></textarea></td>
+                    </tr>
+                    <!-- Row 3: وجداني -->
+                    <tr>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">خاتمة الدرس</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center font-bold" oninput="autoResize(this)">وجداني (استجابة)</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="أن يشارك زملاءه..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">التعلم النشط</textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="تشجيع الطلاب..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)" placeholder="المشاركة الفعالة..."></textarea></td>
+                        <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)" placeholder="شارك في الحل..."></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer Section (التقويم الختامي والواجب) -->
+        <div class="mt-4 border border-gray-800 print-border p-2 bg-gray-50">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center">O</span>
+                <label class="font-bold">التقويم الختامي:</label>
+                <input type="text" class="bg-transparent border-b border-gray-400 focus:border-green-500 outline-none w-full p-1" placeholder="س: ما هي الأشكال التي تم أخذها؟">
+            </div>
+            
+            <div class="flex items-center gap-2 mb-2">
+                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center">O</span>
+                <label class="font-bold">إغلاق الدرس:</label>
+                <input type="text" class="bg-transparent border-b border-gray-400 focus:border-green-500 outline-none w-full p-1" value="توجيه المتعلمين نحو تدوين الملخص السبوري - التأكيد على الأفكار الرئيسية - إتاحة الفرص للاستفسار.">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center">O</span>
+                <label class="font-bold">الواجب المنزلي:</label>
+                <input type="text" class="bg-transparent border-b border-gray-400 focus:border-green-500 outline-none w-full p-1" placeholder="حل أسئلة اختبر نفسك في الكتاب المدرسي صـ ...">
+            </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="grid grid-cols-3 gap-4 mt-12 text-center font-bold text-sm">
+            <div>
+                <p>اعتماد متابعة الإشراف الإداري</p>
+                <div class="h-16 border-b-2 border-dotted border-gray-400 mx-4 mt-4"></div>
+            </div>
+            <div>
+                <p>اعتماد متابعة الإشراف التربوي</p>
+                <div class="h-16 border-b-2 border-dotted border-gray-400 mx-4 mt-4"></div>
+            </div>
+            <div>
+                <p>اعتماد متابعة إدارة المدرسة</p>
+                <div class="h-16 border-b-2 border-dotted border-gray-400 mx-4 mt-4"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // دالة لتكبير المربع تلقائياً عند الكتابة
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+        // تطبيق الدالة على جميع المربعات عند تحميل الصفحة
+        window.onload = function() {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(ta => autoResize(ta));
+        };
+    </script>
+</body>
+</html>
+
+```
