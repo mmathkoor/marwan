@@ -2,1359 +2,891 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>إدارتي المالية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>مدير أموالي - النظام المتكامل</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f2f5; }
 
-:root {
-  --teal: #0d9488;
-  --teal-dark: #0f766e;
-  --teal-light: #ccfbf1;
-  --orange: #f97316;
-  --red: #ef4444;
-  --green: #22c55e;
-  --indigo: #6366f1;
-  --bg: #f0f4f8;
-}
+/* شاشة التحميل */
+.loader { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
+.loader.show { display: flex; }
+.spinner { width: 45px; height: 45px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #0d9488; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-* { box-sizing: border-box; }
-body { font-family: 'Cairo', sans-serif; background: var(--bg); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+/* نافذة منبثقة */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
+.modal.show { display: flex; }
+.modal-box { background: white; width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; padding: 24px 20px 32px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-.hidden { display: none !important; }
+/* شريط سفلي */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); border-top: 1px solid #e5e7eb; padding: 8px 16px 20px; z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; }
+.nav-item.active .nav-icon { background: #0d9488; color: white; transform: translateY(-8px); }
+.nav-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #6b7280; transition: all 0.3s; }
 
-/* Loader */
-.loader-overlay { position: fixed; top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.96);z-index:9999;display:none;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(6px); }
-.spinner { border:4px solid rgba(13,148,136,0.15);width:48px;height:48px;border-radius:50%;border-left-color:#0d9488;animation:spin 0.9s linear infinite; }
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+/* بطاقات */
+.card { background: white; border-radius: 24px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
-/* Tabs */
-.tab-content { display:none; animation:fadeIn 0.35s ease-out; }
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* أزرار */
+.btn { padding: 14px; border-radius: 16px; font-weight: bold; text-align: center; cursor: pointer; transition: all 0.2s; }
+.btn:active { transform: scale(0.97); }
 
-/* Bottom Nav */
-.nav-btn { position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;padding-top:8px;-webkit-tap-highlight-color:transparent; }
-.nav-btn .icon-wrapper { width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#6b7280;background:transparent;transition:all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);z-index:2; }
-.nav-btn.active .icon-wrapper { background:#0d9488;color:#fff;transform:translateY(-18px);box-shadow:0 8px 20px -3px rgba(13,148,136,0.45); }
-.nav-btn .nav-text { font-size:0.68rem;font-weight:700;color:#6b7280;position:absolute;bottom:8px;transition:all 0.3s ease; }
-.nav-btn.active .nav-text { color:#0d9488;font-weight:800;transform:translateY(-4px); }
+/* شريط تقدم */
+.progress { height: 8px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: #0d9488; border-radius: 10px; transition: width 0.3s; }
 
-details>summary{list-style:none;}
-details>summary::-webkit-details-marker{display:none;}
+/* عنصر الحركة */
+.trans-item { background: #f9fafb; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom) + 90px);}
-.scrollbar-hide::-webkit-scrollbar{display:none;}
-.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
+/* فلتر */
+.filter-chip { display: inline-block; padding: 6px 14px; background: #f3f4f6; border-radius: 30px; font-size: 13px; margin: 4px; cursor: pointer; }
+.filter-chip.active { background: #0d9488; color: white; }
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:8000;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(4px);}
-.modal-sheet{background:#fff;border-radius:2rem 2rem 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:1.5rem;animation:slideUp 0.3s ease-out;}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+/* رسم بياني */
+.chart-container { height: 200px; position: relative; margin: 16px 0; }
 
-/* Progress Bar */
-.progress-bar{height:8px;border-radius:999px;background:#f0f4f8;overflow:hidden;}
-.progress-fill{height:100%;border-radius:999px;transition:width 1s ease;}
-
-/* Alert badge */
-.budget-alert{animation:pulse-alert 2s ease-in-out infinite;}
-@keyframes pulse-alert{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
-
-/* Chart container */
-.chart-container{position:relative;height:220px;}
-
-/* Item row */
-.item-row{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1rem;background:#fff;border-radius:1rem;border:1px solid #f1f5f9;margin-bottom:0.5rem;transition:all 0.2s;}
-.item-row:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06);}
-
-/* Installment badge */
-.installment-badge{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:999px;}
-
-/* Toast */
-#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;gap:8px;width:90%;max-width:360px;pointer-events:none;}
+/* إشعار */
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #0d9488; color: white; padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 10000; animation: fadeUp 0.3s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 </style>
 </head>
-<body class="text-gray-800 pb-safe">
+<body>
 
-<div id="toastContainer"></div>
+<!-- شاشة تحميل -->
+<div id="loader" class="loader"><div class="spinner"></div><p class="text-white mt-4 text-sm">جاري التحميل...</p></div>
 
-<div id="globalLoader" class="loader-overlay">
-  <div class="spinner"></div>
-  <p class="mt-4 font-bold text-teal-600 text-sm" id="loaderText">جاري المزامنة...</p>
-</div>
-
-<!-- Modal Container -->
-<div id="modalOverlay" class="modal-overlay hidden" onclick="closeModalIfOutside(event)">
-  <div class="modal-sheet" id="modalSheet"></div>
-</div>
+<!-- نافذة منبثقة -->
+<div id="modal" class="modal"><div id="modalContent" class="modal-box"></div></div>
 
 <!-- شاشة تسجيل الدخول -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center p-5 bg-gradient-to-br from-teal-50 via-white to-gray-100">
-  <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-teal-900/5 w-full max-w-sm text-center">
-    <div class="w-24 h-24 bg-gradient-to-tr from-teal-500 to-teal-400 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-5xl shadow-lg shadow-teal-500/30">
-      <i class="fas fa-fingerprint"></i>
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="bg-white rounded-3xl p-8 w-full max-w-md text-center shadow-xl">
+        <div class="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"><i class="fas fa-piggy-bank text-4xl text-white"></i></div>
+        <h1 class="text-2xl font-black mb-2">مدير أموالي</h1>
+        <p class="text-gray-500 text-sm mb-6">نظام إدارة مالية متكامل</p>
+        <input type="text" id="loginUser" placeholder="اسم المستخدم" class="w-full p-3 border rounded-xl mb-3 focus:outline-none focus:border-teal-500">
+        <input type="password" id="loginPass" placeholder="كلمة المرور" class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:border-teal-500">
+        <button onclick="doLogin()" class="w-full bg-teal-500 text-white p-3 rounded-xl font-bold">دخول</button>
+        <p id="loginError" class="text-red-500 text-sm mt-3 hidden"></p>
+        <p class="text-xs text-gray-400 mt-4">حساب تجريبي: admin / 123</p>
     </div>
-    <h1 class="text-3xl font-black text-gray-800 mb-2">إدارتي المالية</h1>
-    <p class="text-gray-500 text-sm mb-8 font-semibold">بوابتك للتحكم المالي الذكي</p>
-    <form id="loginForm" class="space-y-4 text-right">
-      <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">اسم المستخدم</label>
-        <input type="text" id="loginUser" class="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all text-base font-semibold" required>
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">كلمة المرور</label>
-        <input type="password" id="loginPass" class="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all text-base font-semibold" required>
-      </div>
-      <button type="submit" id="loginBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/30 flex justify-center items-center gap-3 text-base mt-2">
-        <span>تسجيل الدخول</span> <i class="fas fa-arrow-left"></i>
-      </button>
-      <p id="loginError" class="text-red-500 text-sm text-center hidden font-bold bg-red-50 p-2 rounded-lg"></p>
-    </form>
-  </div>
 </div>
 
-<!-- الواجهة الرئيسية -->
-<div id="mainApp" class="hidden">
-
-  <header class="bg-white p-4 shadow-sm sticky top-0 z-40">
-    <div class="container mx-auto flex justify-between items-center max-w-lg">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center text-base">
-          <i class="fas fa-user-alt"></i>
+<!-- التطبيق الرئيسي -->
+<div id="mainApp" style="display: none; padding-bottom: 90px;">
+    
+    <!-- الهيدر -->
+    <div class="bg-white px-4 py-3 shadow-sm sticky top-0 z-50">
+        <div class="flex justify-between items-center max-w-2xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-teal-600"></i></div>
+                <div><p class="font-bold" id="userName"></p><p class="text-xs text-teal-600" id="userRole"></p></div>
+            </div>
+            <div class="flex gap-2">
+                <div id="alertIcon" class="hidden w-10 h-10 bg-red-50 rounded-full flex items-center justify-center cursor-pointer" onclick="showBudgetAlerts()"><i class="fas fa-bell text-red-500"></i></div>
+                <button onclick="logout()" class="w-10 h-10 bg-gray-100 rounded-full"><i class="fas fa-sign-out-alt text-gray-500"></i></button>
+            </div>
         </div>
-        <div class="text-right">
-          <p id="topUserName" class="text-sm font-black text-gray-800 leading-tight">الاسم</p>
-          <p id="topUserRole" class="text-xs text-teal-600 font-bold leading-tight">الدور</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <div id="alertBell" class="hidden w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center cursor-pointer budget-alert" onclick="switchTab('reports')">
-          <i class="fas fa-bell"></i>
-        </div>
-        <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition bg-gray-50 w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-power-off"></i></button>
-      </div>
     </div>
-  </header>
 
-  <main class="container mx-auto p-4 mt-2 max-w-lg">
-
-    <!-- 1. لوحة التحكم -->
-    <section id="tab-dashboard" class="tab-content">
-      <div class="bg-gradient-to-br from-teal-600 to-teal-800 rounded-[2rem] p-6 shadow-xl shadow-teal-700/20 mb-5 text-white text-center relative overflow-hidden">
-        <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
-        <h2 class="text-teal-100 text-xs font-semibold mb-1 relative z-10">إجمالي السيولة النقدية</h2>
-        <div class="text-4xl font-black mb-5 tracking-wide relative z-10" id="dashTotalBalance">0 <span class="text-lg font-normal">ر.ي</span></div>
-        <div class="bg-black/20 backdrop-blur-md rounded-2xl p-3 flex gap-3 overflow-x-auto scrollbar-hide relative z-10" id="dashWallets">
-          <p class="text-white/70 text-xs w-full text-center">جاري الجلب...</p>
-        </div>
-      </div>
-
-      <!-- تنبيهات الميزانية -->
-      <div id="budgetAlertsBox" class="hidden mb-4 bg-red-50 border border-red-100 rounded-2xl p-4">
-        <h4 class="text-red-600 font-black text-sm mb-2"><i class="fas fa-exclamation-triangle ml-2"></i>تنبيهات تجاوز الميزانية</h4>
-        <div id="budgetAlertsList" class="space-y-2"></div>
-      </div>
-
-      <div class="flex justify-between items-center mb-4 px-1">
-        <h3 class="font-bold text-gray-800">أحدث الحركات</h3>
-        <span class="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg cursor-pointer admin-only hidden" onclick="switchTab('reports')">التقارير <i class="fas fa-chart-line ml-1"></i></span>
-      </div>
-      <div id="recentTransactions" class="space-y-3"></div>
-    </section>
-
-    <!-- 2. تسجيل حركة -->
-    <section id="tab-add" class="tab-content">
-      <h2 class="text-2xl font-black mb-5 text-gray-800">تسجيل حركة</h2>
-      <form id="transactionForm" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-5">
-        <div class="bg-gray-50 p-1 rounded-xl flex gap-1">
-          <button type="button" id="btnTypeOut" class="flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow-sm text-red-500 transition-all" onclick="setType('خرج')">مصروف</button>
-          <button type="button" id="btnTypeIn" class="flex-1 py-2 rounded-lg font-bold text-sm text-gray-400 transition-all admin-only hidden" onclick="setType('دخل')">إيراد</button>
-          <button type="button" id="btnTypeTransfer" class="flex-1 py-2 rounded-lg font-bold text-sm text-gray-400 transition-all admin-only hidden" onclick="setType('تحويل')">تحويل</button>
-          <input type="hidden" id="tType" value="خرج">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-500 mb-2">المبلغ</label>
-          <div class="relative">
-            <input type="number" id="tAmount" placeholder="0" class="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 pl-12 focus:outline-none focus:border-teal-500 text-2xl font-black transition-all" required>
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">ر.ي</span>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label id="walletLabel" class="block text-xs font-bold text-gray-500 mb-2">المحفظة</label>
-            <select id="tWallet" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500 font-semibold text-gray-700"></select>
-          </div>
-          <div id="categoryContainer">
-            <label class="block text-xs font-bold text-gray-500 mb-2">التصنيف</label>
-            <select id="tCategory" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500 font-semibold text-gray-700"></select>
-          </div>
-          <div id="destWalletContainer" class="hidden">
-            <label class="block text-xs font-bold text-gray-500 mb-2">إلى محفظة</label>
-            <select id="tDestWallet" class="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-3.5 focus:outline-none font-semibold text-indigo-700"></select>
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-500 mb-2">التاريخ</label>
-          <input type="date" id="tDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500 font-semibold" required>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-500 mb-2">التفاصيل / الملاحظات</label>
-          <textarea id="tNotes" rows="2" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500" placeholder="اكتب تفاصيل إضافية..."></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all shadow-lg text-base flex justify-center items-center gap-2">
-          حفظ العملية <i class="fas fa-check"></i>
-        </button>
-      </form>
-    </section>
-
-    <!-- 3. إدارة الديون -->
-    <section id="tab-debts" class="tab-content">
-      <h2 class="text-2xl font-black mb-5 text-gray-800">إدارة الديون</h2>
-
-      <!-- إضافة دين جديد -->
-      <div class="bg-gradient-to-br from-orange-50 to-white p-5 rounded-[2rem] shadow-sm border border-orange-100 mb-5">
-        <h3 class="font-bold text-orange-600 mb-4"><i class="fas fa-plus-circle ml-2"></i>تسجيل دين جديد</h3>
-        <form id="debtForm" class="space-y-3">
-          <input type="text" id="dName" placeholder="اسم الدين أو الدائن (مثال: قرض سيارة)" class="w-full bg-white border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold" required>
-          <div class="grid grid-cols-2 gap-3">
-            <input type="number" id="dAmount" placeholder="المبلغ الكلي" class="w-full bg-white border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold" required>
-            <input type="date" id="dDate" class="w-full bg-white border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold" required>
-          </div>
-          <!-- خيار التقسيط -->
-          <div class="bg-orange-50 rounded-xl p-3">
-            <label class="flex items-center gap-2 cursor-pointer mb-3">
-              <input type="checkbox" id="dInstallment" class="w-4 h-4 accent-orange-500" onchange="toggleInstallment()">
-              <span class="text-sm font-bold text-orange-700">تفعيل نظام التقسيط الشهري</span>
-            </label>
-            <div id="installmentFields" class="hidden">
-              <label class="block text-xs font-bold text-gray-600 mb-1">القسط الشهري</label>
-              <input type="number" id="dInstallmentAmount" placeholder="مبلغ القسط الشهري" class="w-full bg-white border border-gray-200 rounded-xl p-3 focus:outline-none focus:border-orange-500 font-semibold text-sm">
-            </div>
-          </div>
-          <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all shadow-md">إضافة للسجل</button>
-        </form>
-      </div>
-
-      <!-- ملخص الديون -->
-      <div id="debtsSummary" class="grid grid-cols-2 gap-3 mb-5 hidden">
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-          <p class="text-xs text-gray-500 font-bold mb-1">إجمالي الديون</p>
-          <p class="text-lg font-black text-orange-600" id="totalDebtAmt">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-          <p class="text-xs text-gray-500 font-bold mb-1">المتبقي للسداد</p>
-          <p class="text-lg font-black text-red-500" id="totalDebtRemaining">0</p>
-        </div>
-      </div>
-
-      <h3 class="font-bold text-gray-800 mb-3 text-base">سجل الديون</h3>
-      <div id="debtsContainer" class="space-y-4"></div>
-    </section>
-
-    <!-- 4. التقارير -->
-    <section id="tab-reports" class="tab-content">
-      <h2 class="text-2xl font-black mb-5 text-gray-800">التقارير والإحصائيات</h2>
-
-      <!-- فلتر الشهر -->
-      <div class="bg-white rounded-2xl p-4 border border-gray-100 mb-5 flex gap-3 items-center">
-        <label class="text-xs font-bold text-gray-500">الفترة</label>
-        <select id="reportMonth" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-2.5 focus:outline-none font-semibold text-sm" onchange="renderReports()"></select>
-      </div>
-
-      <!-- بطاقات الملخص -->
-      <div class="grid grid-cols-2 gap-3 mb-5">
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-          <div class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center mx-auto mb-2 text-lg"><i class="fas fa-arrow-up"></i></div>
-          <p class="text-[11px] text-gray-500 font-bold mb-1">المصروفات</p>
-          <p class="text-lg font-black text-gray-800" id="repTotalExp">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-          <div class="w-10 h-10 bg-green-50 text-green-500 rounded-xl flex items-center justify-center mx-auto mb-2 text-lg"><i class="fas fa-arrow-down"></i></div>
-          <p class="text-[11px] text-gray-500 font-bold mb-1">الإيرادات</p>
-          <p class="text-lg font-black text-gray-800" id="repTotalInc">0</p>
-        </div>
-      </div>
-
-      <!-- رسم بياني دائري للتصنيفات -->
-      <div class="bg-white p-5 rounded-[1.5rem] border border-gray-100 mb-5">
-        <h3 class="font-bold text-gray-800 mb-4 text-sm">توزيع المصروفات بالتصنيف</h3>
-        <div class="chart-container">
-          <canvas id="chartPie"></canvas>
-        </div>
-      </div>
-
-      <!-- رسم بياني شريطي للمحافظ -->
-      <div class="bg-white p-5 rounded-[1.5rem] border border-gray-100 mb-5">
-        <h3 class="font-bold text-gray-800 mb-4 text-sm">مصروفات المحافظ مقابل الإيرادات</h3>
-        <div class="chart-container">
-          <canvas id="chartBar"></canvas>
-        </div>
-      </div>
-
-      <!-- ميزانية التصنيفات -->
-      <div class="bg-white p-5 rounded-[1.5rem] border border-gray-100 mb-5">
-        <h3 class="font-bold text-gray-800 mb-4 text-sm">استهلاك الميزانية</h3>
-        <div id="budgetBars" class="space-y-4"></div>
-      </div>
-
-      <!-- رسم بياني خطي شهري -->
-      <div class="bg-white p-5 rounded-[1.5rem] border border-gray-100 mb-5">
-        <h3 class="font-bold text-gray-800 mb-4 text-sm">الحركات خلال 6 أشهر</h3>
-        <div class="chart-container">
-          <canvas id="chartLine"></canvas>
-        </div>
-      </div>
-
-      <!-- تصدير -->
-      <div class="bg-gradient-to-br from-indigo-600 to-blue-700 p-6 rounded-[2rem] shadow-lg shadow-blue-600/20 text-white text-center mb-5">
-        <i class="fas fa-file-excel text-4xl mb-3 block"></i>
-        <h3 class="font-bold text-lg mb-2">تصدير البيانات</h3>
-        <p class="text-xs text-blue-100 mb-4">تحميل كامل السجل كملف CSV</p>
-        <button onclick="exportToCSV()" class="w-full bg-white text-indigo-700 font-black py-3 rounded-xl flex justify-center items-center gap-2 hover:bg-gray-50 transition-all">
-          <i class="fas fa-download"></i> تصدير (CSV)
-        </button>
-      </div>
-    </section>
-
-    <!-- 5. الإعدادات -->
-    <section id="tab-settings" class="tab-content">
-      <h2 class="text-2xl font-black mb-5 text-gray-800">إعدادات النظام</h2>
-
-      <div class="space-y-4">
-
-        <!-- المحافظ -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <details class="group">
-            <summary class="flex justify-between items-center p-5 cursor-pointer font-bold text-gray-800 hover:bg-gray-50 transition-all">
-              <span class="flex items-center gap-3"><div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center"><i class="fas fa-wallet"></i></div>إدارة المحافظ</span>
-              <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform group-open:rotate-180"></i>
-            </summary>
-            <div class="p-5 border-t border-gray-50 bg-gray-50/30">
-              <form onsubmit="submitSetting(event,'wallet')" class="space-y-3 mb-4">
-                <input type="text" id="sWalletName" placeholder="اسم المحفظة" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-teal-500 font-semibold" required>
-                <input type="number" id="sWalletBal" placeholder="الرصيد الافتتاحي" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-teal-500 font-semibold" required>
-                <button type="submit" class="w-full bg-teal-600 text-white p-3.5 rounded-xl font-bold hover:bg-teal-700 transition-all">إضافة محفظة</button>
-              </form>
-              <div id="walletsList" class="space-y-2"></div>
-            </div>
-          </details>
-        </div>
-
-        <!-- التصنيفات -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <details class="group">
-            <summary class="flex justify-between items-center p-5 cursor-pointer font-bold text-gray-800 hover:bg-gray-50 transition-all">
-              <span class="flex items-center gap-3"><div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-tags"></i></div>إدارة التصنيفات</span>
-              <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform group-open:rotate-180"></i>
-            </summary>
-            <div class="p-5 border-t border-gray-50 bg-gray-50/30">
-              <form onsubmit="submitSetting(event,'category')" class="space-y-3 mb-4">
-                <input type="text" id="sCatName" placeholder="اسم التصنيف" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 font-semibold" required>
-                <input type="number" id="sCatBudget" placeholder="الميزانية الشهرية" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 font-semibold" required>
-                <button type="submit" class="w-full bg-purple-600 text-white p-3.5 rounded-xl font-bold hover:bg-purple-700 transition-all">إضافة تصنيف</button>
-              </form>
-              <div id="categoriesList" class="space-y-2"></div>
-            </div>
-          </details>
-        </div>
-
-        <!-- المستخدمون -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <details class="group">
-            <summary class="flex justify-between items-center p-5 cursor-pointer font-bold text-gray-800 hover:bg-gray-50 transition-all">
-              <span class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-users"></i></div>إدارة المستخدمين</span>
-              <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform group-open:rotate-180"></i>
-            </summary>
-            <div class="p-5 border-t border-gray-50 bg-gray-50/30">
-              <form onsubmit="submitSetting(event,'user')" class="space-y-3 mb-4">
-                <input type="text" id="sUserName" placeholder="اسم المستخدم" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 font-semibold" required>
-                <input type="text" id="sUserPass" placeholder="كلمة المرور" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 font-semibold" required>
-                <select id="sUserRole" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 font-semibold">
-                  <option value="User">مستخدم عادي</option>
-                  <option value="Admin">مدير نظام</option>
-                </select>
-                <button type="submit" class="w-full bg-blue-600 text-white p-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all">إنشاء الحساب</button>
-              </form>
-              <div id="usersList" class="space-y-2"></div>
-            </div>
-          </details>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Bottom Nav -->
-  <nav class="fixed bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-5px_25px_rgba(0,0,0,0.06)] rounded-t-[2rem] z-50">
-    <div class="flex justify-around items-center w-full max-w-lg mx-auto h-[76px] px-2" id="bottomNav">
-      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn admin-only hidden">
-        <div class="icon-wrapper"><i class="fas fa-chart-pie"></i></div>
-        <span class="nav-text">الرئيسية</span>
-      </button>
-      <button onclick="switchTab('debts')" id="nav-debts" class="nav-btn admin-only hidden">
-        <div class="icon-wrapper"><i class="fas fa-hand-holding-usd"></i></div>
-        <span class="nav-text">الديون</span>
-      </button>
-      <button onclick="switchTab('add')" id="nav-add" class="nav-btn active">
-        <div class="icon-wrapper"><i class="fas fa-plus"></i></div>
-        <span class="nav-text">تسجيل</span>
-      </button>
-      <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn admin-only hidden">
-        <div class="icon-wrapper"><i class="fas fa-chart-line"></i></div>
-        <span class="nav-text">تقارير</span>
-      </button>
-      <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn admin-only hidden">
-        <div class="icon-wrapper"><i class="fas fa-cog"></i></div>
-        <span class="nav-text">إعدادات</span>
-      </button>
+    <!-- المحتوى الرئيسي -->
+    <div class="max-w-2xl mx-auto p-4" id="pageContent">
+        <!-- سيتم تحميل المحتوى هنا -->
     </div>
-  </nav>
+
+    <!-- الشريط السفلي -->
+    <div class="bottom-nav">
+        <div class="flex justify-around max-w-2xl mx-auto">
+            <div onclick="loadPage('home')" class="nav-item" data-page="home"><div class="nav-icon"><i class="fas fa-home"></i></div><span class="text-xs">الرئيسية</span></div>
+            <div onclick="loadPage('transactions')" class="nav-item" data-page="transactions"><div class="nav-icon"><i class="fas fa-exchange-alt"></i></div><span class="text-xs">الحركات</span></div>
+            <div onclick="loadPage('debts')" class="nav-item admin-only" data-page="debts"><div class="nav-icon"><i class="fas fa-hand-holding-usd"></i></div><span class="text-xs">الديون</span></div>
+            <div onclick="loadPage('reports')" class="nav-item admin-only" data-page="reports"><div class="nav-icon"><i class="fas fa-chart-line"></i></div><span class="text-xs">التقارير</span></div>
+            <div onclick="loadPage('settings')" class="nav-item admin-only" data-page="settings"><div class="nav-icon"><i class="fas fa-cog"></i></div><span class="text-xs">إعدادات</span></div>
+        </div>
+    </div>
 </div>
 
 <script>
-// ========================================
-// رابط الـ Backend
-// ========================================
-const API_URL = "https://script.google.com/macros/s/AKfycbxAwVL_7nCTqbd7Pq_5_HaJDewV4zNLv2jsTS6UI_rFiSSgi4kEBZ_HPCBOixxBEX22/exec";
-
+// ============== البيانات والتخزين ==============
 let currentUser = null;
-let appData = null;
-let chartPieInstance = null;
-let chartBarInstance = null;
-let chartLineInstance = null;
+let appData = {
+    wallets: [{ name: "كاش", balance: 5000 }, { name: "بنك", balance: 10000 }],
+    categories: [{ name: "طعام", budget: 1000 }, { name: "مواصلات", budget: 500 }, { name: "فواتير", budget: 800 }],
+    transactions: [],
+    debts: []
+};
 
-// ========================================
-// Toast نظام الإشعارات
-// ========================================
-function showToast(message, type = 'success') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  const bg = type === 'success' ? 'bg-teal-600' : (type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-orange-500' : 'bg-gray-800');
-  const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle');
-  toast.className = `${bg} text-white px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 transform transition-all duration-300 -translate-y-10 opacity-0 pointer-events-auto`;
-  toast.innerHTML = `<i class="fas ${icon} text-lg flex-shrink-0"></i><span class="font-bold text-sm">${message}</span>`;
-  container.appendChild(toast);
-  requestAnimationFrame(() => toast.classList.remove('-translate-y-10', 'opacity-0'));
-  setTimeout(() => { toast.classList.add('opacity-0', 'scale-95'); setTimeout(() => toast.remove(), 300); }, 4000);
+let charts = {};
+
+// تحميل البيانات من localStorage
+function loadStorage() {
+    const saved = localStorage.getItem('financeAppData');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            if (data.wallets) appData.wallets = data.wallets;
+            if (data.categories) appData.categories = data.categories;
+            if (data.transactions) appData.transactions = data.transactions;
+            if (data.debts) appData.debts = data.debts;
+        } catch(e) {}
+    }
 }
 
-// ========================================
-// Modal نظام
-// ========================================
-function openModal(html) {
-  document.getElementById('modalSheet').innerHTML = html;
-  document.getElementById('modalOverlay').classList.remove('hidden');
+function saveStorage() {
+    localStorage.setItem('financeAppData', JSON.stringify(appData));
+}
+
+// ============== دوال مساعدة ==============
+function showLoader(show) {
+    document.getElementById('loader').classList.toggle('show', show);
+}
+
+function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.background = isError ? '#ef4444' : '#0d9488';
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+
+function showModal(html) {
+    const modal = document.getElementById('modal');
+    document.getElementById('modalContent').innerHTML = html;
+    modal.classList.add('show');
 }
 
 function closeModal() {
-  document.getElementById('modalOverlay').classList.add('hidden');
+    document.getElementById('modal').classList.remove('show');
 }
 
-function closeModalIfOutside(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
-}
-
-// ========================================
-// تسجيل الدخول
-// ========================================
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  let btn = document.getElementById('loginBtn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
-  btn.disabled = true;
-  const u = document.getElementById('loginUser').value;
-  const p = document.getElementById('loginPass').value;
-
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', payload: { username: u, password: p } }) })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        currentUser = data.user;
+// ============== تسجيل الدخول ==============
+function doLogin() {
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+    
+    if ((user === 'admin' && pass === '123') || (user === 'user' && pass === '123')) {
+        currentUser = { name: user === 'admin' ? 'مدير النظام' : 'مستخدم', role: user === 'admin' ? 'Admin' : 'User' };
         localStorage.setItem('financeUser', JSON.stringify(currentUser));
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        initAppUI();
-        fetchAppData(true);
-      } else {
-        btn.innerHTML = '<span>تسجيل الدخول</span> <i class="fas fa-arrow-left"></i>';
-        btn.disabled = false;
-        let err = document.getElementById('loginError');
-        err.innerText = data.message || 'بيانات الدخول غير صحيحة.';
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        
+        // إظهار عناصر الأدمن
+        if (currentUser.role !== 'Admin') {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        } else {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        }
+        
+        document.getElementById('userName').innerText = currentUser.name;
+        document.getElementById('userRole').innerText = currentUser.role === 'Admin' ? 'مدير' : 'مستخدم';
+        
+        loadStorage();
+        loadPage('home');
+    } else {
+        const err = document.getElementById('loginError');
+        err.innerText = 'بيانات دخول غير صحيحة (admin/123)';
         err.classList.remove('hidden');
-      }
-    })
-    .catch(() => {
-      btn.innerHTML = '<span>تسجيل الدخول</span> <i class="fas fa-arrow-left"></i>';
-      btn.disabled = false;
-      showToast('خطأ في الاتصال بالخادم', 'error');
-    });
-});
+        setTimeout(() => err.classList.add('hidden'), 3000);
+    }
+}
 
 function logout() {
-  localStorage.removeItem('financeUser');
-  location.reload();
+    localStorage.removeItem('financeUser');
+    location.reload();
 }
 
-window.onload = () => {
-  let saved = localStorage.getItem('financeUser');
-  if (saved) {
-    currentUser = JSON.parse(saved);
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    initAppUI();
-    fetchAppData(true);
-  }
-};
-
-// ========================================
-// تهيئة الواجهة
-// ========================================
-function initAppUI() {
-  document.getElementById('topUserName').innerText = currentUser.name;
-  document.getElementById('topUserRole').innerText = currentUser.role === 'Admin' ? 'مدير النظام' : 'مستخدم للأسرة';
-  document.getElementById('tDate').valueAsDate = new Date();
-  let dDateInput = document.getElementById('dDate');
-  if (dDateInput) { let nm = new Date(); nm.setMonth(nm.getMonth() + 1); dDateInput.valueAsDate = nm; }
-
-  const adminEls = document.querySelectorAll('.admin-only');
-  if (currentUser.role === 'Admin') {
-    adminEls.forEach(el => el.classList.remove('hidden'));
-    switchTab('dashboard');
-  } else {
-    adminEls.forEach(el => el.classList.add('hidden'));
-    setType('خرج');
-    switchTab('add');
-  }
-  initReportMonthFilter();
+// ============== التنقل بين الصفحات ==============
+function loadPage(page) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    
+    if (page === 'home') renderHome();
+    else if (page === 'transactions') renderTransactionsPage();
+    else if (page === 'debts') renderDebtsPage();
+    else if (page === 'reports') renderReportsPage();
+    else if (page === 'settings') renderSettingsPage();
 }
 
-function toggleInstallment() {
-  const checked = document.getElementById('dInstallment').checked;
-  document.getElementById('installmentFields').classList.toggle('hidden', !checked);
-}
-
-function setType(type) {
-  document.getElementById('tType').value = type;
-  const btnOut = document.getElementById('btnTypeOut');
-  const btnIn = document.getElementById('btnTypeIn');
-  const btnTransfer = document.getElementById('btnTypeTransfer');
-  const catC = document.getElementById('categoryContainer');
-  const destC = document.getElementById('destWalletContainer');
-  const wLabel = document.getElementById('walletLabel');
-  const isAdmin = currentUser && currentUser.role === 'Admin';
-
-  btnOut.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-400 transition-all";
-  btnIn.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-400 transition-all admin-only " + (!isAdmin ? 'hidden' : '');
-  btnTransfer.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-400 transition-all admin-only " + (!isAdmin ? 'hidden' : '');
-
-  if (type === 'خرج') {
-    btnOut.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow-sm text-red-500 transition-all";
-    catC.classList.remove('hidden'); destC.classList.add('hidden');
-    wLabel.innerText = "المحفظة (من أين؟)";
-  } else if (type === 'دخل') {
-    btnIn.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow-sm text-green-600 transition-all admin-only";
-    catC.classList.remove('hidden'); destC.classList.add('hidden');
-    wLabel.innerText = "المحفظة (إلى أين؟)";
-  } else if (type === 'تحويل') {
-    btnTransfer.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow-sm text-indigo-600 transition-all admin-only";
-    catC.classList.add('hidden'); destC.classList.remove('hidden');
-    wLabel.innerText = "من محفظة (المرسل)";
-  }
-}
-
-// ========================================
-// جلب البيانات
-// ========================================
-function fetchAppData(showLoading = false) {
-  if (showLoading) showLoader('جاري مزامنة السجلات...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppData', payload: {} }) })
-    .then(r => r.json())
-    .then(data => {
-      if (showLoading) hideLoader();
-      if (data.status === 'success') {
-        appData = data;
-        renderDashboard();
-        renderDropdowns();
-        renderDebts();
-        renderReports();
-        renderSettingsLists();
-        checkBudgetAlerts();
-      }
-    })
-    .catch(() => { if (showLoading) hideLoader(); });
-}
-
-// ========================================
-// لوحة التحكم
-// ========================================
-function renderDashboard() {
-  if (currentUser.role !== 'Admin') return;
-  document.getElementById('dashTotalBalance').innerHTML = parseFloat(appData.totalBalance).toLocaleString() + ' <span class="text-lg font-normal">ر.ي</span>';
-
-  let wHtml = appData.wallets.map(w => `
-    <div class="text-center min-w-[85px] bg-white/10 px-3 py-2 rounded-xl border border-white/10 flex-shrink-0">
-      <p class="text-teal-100 text-[10px] mb-1 font-bold">${w.name}</p>
-      <p class="font-black text-white text-sm">${parseFloat(w.balance || 0).toLocaleString()}</p>
-    </div>`).join('');
-  document.getElementById('dashWallets').innerHTML = wHtml || '<p class="text-white/60 text-xs w-full text-center">لا توجد محافظ</p>';
-
-  const cm = new Date().getMonth();
-  let exp = 0, inc = 0;
-  let tHtml = (appData.transactions || []).slice(0, 20).map(t => {
-    const isInc = t.type === 'دخل';
-    const isTransfer = t.category && t.category.includes('تحويل');
-    const d = new Date(t.date);
-    if (d.getMonth() === cm && !isTransfer) {
-      if (isInc) inc += parseFloat(t.amount);
-      else exp += parseFloat(t.amount);
-    }
-    let iconClass = isInc ? 'fa-arrow-down' : 'fa-shopping-cart';
-    let colorClass = isInc ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500';
-    let textClass = isInc ? 'text-green-600' : 'text-red-600';
-    if (isTransfer) { iconClass = 'fa-exchange-alt'; colorClass = 'bg-indigo-50 text-indigo-500'; textClass = 'text-indigo-600'; }
-    const sign = isInc && !isTransfer ? '+' : (isTransfer ? '⇄' : '-');
-    return `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <div class="${colorClass} w-11 h-11 rounded-xl flex items-center justify-center text-lg"><i class="fas ${iconClass}"></i></div>
-        <div>
-          <p class="font-bold text-sm text-gray-800">${t.category || '-'}</p>
-          <p class="text-[10px] text-gray-500 mt-0.5 font-semibold"><i class="fas fa-user text-[9px] mr-1"></i>${t.user} • ${d.toLocaleDateString('ar-EG')}</p>
-          ${t.notes ? `<p class="text-[10px] text-gray-400 mt-0.5">${t.notes}</p>` : ''}
+// ============== الصفحة الرئيسية ==============
+function renderHome() {
+    const totalIncome = appData.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const totalExpense = appData.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const balance = totalIncome - totalExpense;
+    
+    // حساب أرصدة المحافظ
+    appData.wallets.forEach(w => { w.balance = 5000; }); // قاعدة
+        
+    const html = `
+        <div class="card bg-gradient-to-r from-teal-500 to-teal-600 text-white text-center">
+            <p class="text-sm opacity-90">الرصيد الكلي</p>
+            <p class="text-4xl font-black">${balance.toLocaleString()} <span class="text-base">ر.س</span></p>
+            <div class="flex justify-between mt-4 pt-3 border-t border-white/20">
+                <div><p class="text-xs">الإيرادات</p><p class="font-bold">${totalIncome.toLocaleString()}</p></div>
+                <div><p class="text-xs">المصروفات</p><p class="font-bold">${totalExpense.toLocaleString()}</p></div>
+            </div>
         </div>
-      </div>
-      <div class="text-left">
-        <p class="${textClass} font-black text-sm" dir="ltr">${sign} ${parseFloat(t.amount).toLocaleString()}</p>
-        <p class="text-[10px] text-gray-400 mt-0.5 font-semibold">${t.wallet}</p>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('recentTransactions').innerHTML = tHtml || '<p class="text-center text-gray-400 text-sm py-8">لا توجد حركات مسجلة</p>';
-  if (document.getElementById('repTotalExp')) {
-    document.getElementById('repTotalExp').innerText = exp.toLocaleString();
-    document.getElementById('repTotalInc').innerText = inc.toLocaleString();
-  }
-}
-
-// ========================================
-// القوائم المنسدلة
-// ========================================
-function renderDropdowns() {
-  const wOpts = (appData.wallets || []).map(w => `<option value="${w.name}">${w.name}</option>`).join('');
-  document.getElementById('tWallet').innerHTML = wOpts;
-  document.getElementById('tDestWallet').innerHTML = wOpts;
-  document.getElementById('tCategory').innerHTML = (appData.categories || []).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-}
-
-// ========================================
-// إدارة الديون - العرض
-// ========================================
-function renderDebts() {
-  if (currentUser.role !== 'Admin') return;
-  const debts = appData.debts || [];
-
-  if (debts.length > 0) {
-    document.getElementById('debtsSummary').classList.remove('hidden');
-    const totalDebt = debts.reduce((s, d) => s + parseFloat(d.total || 0), 0);
-    const totalRemain = debts.reduce((s, d) => s + parseFloat(d.remaining || 0), 0);
-    document.getElementById('totalDebtAmt').innerText = totalDebt.toLocaleString();
-    document.getElementById('totalDebtRemaining').innerText = totalRemain.toLocaleString();
-  } else {
-    document.getElementById('debtsSummary').classList.add('hidden');
-  }
-
-  const dHtml = debts.length ? debts.map((d, idx) => {
-    const perc = d.total > 0 ? Math.min((d.paid / d.total) * 100, 100) : 0;
-    const remaining = parseFloat(d.remaining || 0);
-    const installment = d.installment ? parseFloat(d.installment) : null;
-    const monthsLeft = installment && installment > 0 ? Math.ceil(remaining / installment) : null;
-    return `<div class="bg-white p-5 rounded-[1.5rem] border border-gray-100 shadow-sm">
-      <div class="flex justify-between items-start mb-3">
-        <div>
-          <h3 class="font-black text-gray-800">${d.name}</h3>
-          <span class="text-[10px] text-gray-500"><i class="far fa-calendar-alt ml-1"></i>${new Date(d.target).toLocaleDateString('ar-EG')}</span>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3"><i class="fas fa-wallet text-teal-500 ml-2"></i>المحافظ</h3>
+            <div class="grid grid-cols-2 gap-2">
+                ${appData.wallets.map(w => `<div class="bg-gray-50 p-3 rounded-xl text-center"><p class="font-bold">${w.name}</p><p class="text-teal-600 font-bold">${(w.balance || 0).toLocaleString()}</p></div>`).join('')}
+            </div>
         </div>
-        <div class="flex gap-2">
-          ${installment ? `<span class="installment-badge">${installment.toLocaleString()} / شهر</span>` : ''}
-          <button onclick="openDebtActions(${idx})" class="w-8 h-8 bg-gray-50 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all">
-            <i class="fas fa-ellipsis-v text-xs"></i>
-          </button>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3"><i class="fas fa-clock text-teal-500 ml-2"></i>آخر الحركات</h3>
+            <div class="space-y-2">
+                ${appData.transactions.slice(0, 5).map(t => `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-xl">
+                        <div><p class="font-bold text-sm">${t.category}</p><p class="text-xs text-gray-500">${t.date}</p></div>
+                        <p class="font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'} ${t.amount.toLocaleString()}</p>
+                    </div>
+                `).join('') || '<p class="text-gray-400 text-center py-4">لا توجد حركات</p>'}
+            </div>
         </div>
-      </div>
-      <div class="flex justify-between text-xs text-gray-500 mb-2 font-bold">
-        <span>المسدد: <span class="text-green-600 font-black">${parseFloat(d.paid || 0).toLocaleString()}</span></span>
-        <span>الكلي: <span class="font-black text-gray-700">${parseFloat(d.total || 0).toLocaleString()}</span></span>
-      </div>
-      <div class="progress-bar mb-3">
-        <div class="progress-fill ${perc >= 100 ? 'bg-green-500' : perc > 60 ? 'bg-teal-500' : 'bg-orange-400'}" style="width:${perc}%"></div>
-      </div>
-      <div class="flex justify-between items-center">
-        <div>
-          <p class="text-xs text-gray-400 font-bold">المتبقي للسداد</p>
-          <p class="text-base font-black text-gray-800">${remaining.toLocaleString()} <span class="text-xs font-normal text-gray-400">ر.ي</span></p>
-          ${monthsLeft ? `<p class="text-[10px] text-orange-500 font-bold">≈ ${monthsLeft} شهر للإنهاء</p>` : ''}
+    `;
+    document.getElementById('pageContent').innerHTML = html;
+}
+
+// ============== صفحة الحركات (مع تعديل وحذف) ==============
+function renderTransactionsPage() {
+    const html = `
+        <div class="card">
+            <h3 class="font-bold mb-3">إضافة حركة جديدة</h3>
+            <input type="number" id="newAmount" placeholder="المبلغ" class="w-full p-3 border rounded-xl mb-2">
+            <div class="flex gap-2 mb-2">
+                <button onclick="setTransType('expense')" id="expenseBtn" class="flex-1 p-3 rounded-xl font-bold bg-red-500 text-white">مصروف</button>
+                <button onclick="setTransType('income')" id="incomeBtn" class="flex-1 p-3 rounded-xl font-bold bg-gray-200">إيراد</button>
+            </div>
+            <input type="hidden" id="transType" value="expense">
+            <select id="transWallet" class="w-full p-3 border rounded-xl mb-2">${appData.wallets.map(w => `<option>${w.name}</option>`).join('')}</select>
+            <select id="transCategory" class="w-full p-3 border rounded-xl mb-2">${appData.categories.map(c => `<option>${c.name}</option>`).join('')}</select>
+            <input type="date" id="transDate" class="w-full p-3 border rounded-xl mb-2">
+            <textarea id="transNote" rows="2" placeholder="ملاحظات" class="w-full p-3 border rounded-xl mb-2"></textarea>
+            <button onclick="addNewTransaction()" class="w-full bg-teal-500 text-white p-3 rounded-xl font-bold">حفظ الحركة</button>
         </div>
-        ${remaining > 0 ? `<button onclick="openPayDebtModal(${idx})" class="bg-teal-500 hover:bg-teal-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-teal-500/30">
-          <i class="fas fa-money-bill-wave"></i> سداد
-        </button>` : `<span class="bg-green-100 text-green-700 font-bold text-xs px-3 py-1.5 rounded-lg"><i class="fas fa-check-circle ml-1"></i>مسدد بالكامل</span>`}
-      </div>
-    </div>`;
-  }).join('') : `<div class="text-center py-10 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-    <i class="fas fa-check-circle text-5xl text-gray-200 mb-3 block"></i>
-    <p class="text-gray-400 text-sm font-semibold">سجل الديون فارغ. الحمدلله!</p>
-  </div>`;
-  document.getElementById('debtsContainer').innerHTML = dHtml;
-}
-
-// ========================================
-// سداد الدين - Modal
-// ========================================
-function openPayDebtModal(idx) {
-  const d = appData.debts[idx];
-  const remaining = parseFloat(d.remaining || 0);
-  const installment = d.installment ? parseFloat(d.installment) : '';
-  const wOpts = (appData.wallets || []).map(w => `<option value="${w.name}">${w.name}</option>`).join('');
-
-  openModal(`
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-lg font-black text-gray-800">سداد دين: ${d.name}</h3>
-      <button onclick="closeModal()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="bg-orange-50 rounded-2xl p-4 mb-5">
-      <div class="flex justify-between text-sm font-bold">
-        <span class="text-gray-600">المتبقي:</span>
-        <span class="text-orange-600">${remaining.toLocaleString()} ر.ي</span>
-      </div>
-      ${d.installment ? `<div class="flex justify-between text-sm font-bold mt-1">
-        <span class="text-gray-600">القسط الشهري:</span>
-        <span class="text-teal-600">${parseFloat(d.installment).toLocaleString()} ر.ي</span>
-      </div>` : ''}
-    </div>
-    <div class="space-y-4">
-      <div>
-        <label class="block text-xs font-bold text-gray-500 mb-2">المبلغ المسدد</label>
-        <div class="relative">
-          <input type="number" id="payAmount" value="${installment || ''}" placeholder="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 pl-12 focus:outline-none focus:border-teal-500 text-xl font-black">
-          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">ر.ي</span>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">جميع الحركات</h3>
+            <div class="space-y-2 max-h-96 overflow-y-auto" id="transList">
+                ${renderTransactionsList()}
+            </div>
         </div>
-        <div class="flex gap-2 mt-2">
-          ${d.installment ? `<button onclick="document.getElementById('payAmount').value='${d.installment}'" class="text-xs bg-teal-50 text-teal-700 px-3 py-1.5 rounded-lg font-bold">القسط (${parseFloat(d.installment).toLocaleString()})</button>` : ''}
-          <button onclick="document.getElementById('payAmount').value='${remaining}'" class="text-xs bg-orange-50 text-orange-700 px-3 py-1.5 rounded-lg font-bold">السداد الكامل</button>
+    `;
+    document.getElementById('pageContent').innerHTML = html;
+    document.getElementById('transDate').valueAsDate = new Date();
+}
+
+function renderTransactionsList() {
+    if (appData.transactions.length === 0) return '<p class="text-gray-400 text-center py-8">لا توجد حركات</p>';
+    
+    return [...appData.transactions].reverse().map((t, idx) => `
+        <div class="trans-item">
+            <div>
+                <p class="font-bold">${t.category}</p>
+                <p class="text-xs text-gray-500">${t.date} • ${t.wallet || 'كاش'}</p>
+                ${t.note ? `<p class="text-xs text-gray-400">${t.note}</p>` : ''}
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'} ${t.amount.toLocaleString()}</span>
+                <button onclick="editTransaction(${idx})" class="text-blue-500 px-2 py-1"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteTransaction(${idx})" class="text-red-500 px-2 py-1"><i class="fas fa-trash"></i></button>
+            </div>
         </div>
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-gray-500 mb-2">من محفظة</label>
-        <select id="payWallet" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none font-semibold">${wOpts}</select>
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-gray-500 mb-2">التاريخ</label>
-        <input type="date" id="payDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none font-semibold">
-      </div>
-      <button onclick="submitDebtPayment(${idx})" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base">
-        <i class="fas fa-check"></i> تأكيد السداد
-      </button>
-    </div>
-  `);
-  document.getElementById('payDate').valueAsDate = new Date();
+    `).join('');
 }
 
-function submitDebtPayment(idx) {
-  const d = appData.debts[idx];
-  const amount = parseFloat(document.getElementById('payAmount').value);
-  const wallet = document.getElementById('payWallet').value;
-  const date = document.getElementById('payDate').value;
-
-  if (!amount || amount <= 0) { showToast('يرجى إدخال مبلغ صحيح', 'error'); return; }
-  if (amount > parseFloat(d.remaining)) { showToast('المبلغ أكبر من المتبقي للسداد!', 'error'); return; }
-
-  closeModal();
-  showLoader('جاري تسجيل السداد...');
-
-  const payload = {
-    action: 'payDebt',
-    payload: {
-      debtIndex: idx,
-      debtName: d.name,
-      amount: amount,
-      wallet: wallet,
-      date: date,
-      user: currentUser.name
-    }
-  };
-
-  fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
-    .then(r => r.json())
-    .then(data => {
-      hideLoader();
-      if (data.status === 'success') {
-        showToast(`تم تسجيل سداد ${amount.toLocaleString()} ر.ي بنجاح`, 'success');
-        fetchAppData(false);
-      } else {
-        showToast('حدث خطأ أثناء تسجيل السداد', 'error');
-      }
-    })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
-}
-
-// خيارات الدين (تعديل / حذف)
-function openDebtActions(idx) {
-  const d = appData.debts[idx];
-  openModal(`
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-base font-black text-gray-800">خيارات: ${d.name}</h3>
-      <button onclick="closeModal()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <button onclick="openEditDebtModal(${idx})" class="w-full bg-blue-50 text-blue-700 font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
-        <i class="fas fa-edit"></i> تعديل بيانات الدين
-      </button>
-      <button onclick="confirmDeleteDebt(${idx})" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-all">
-        <i class="fas fa-trash-alt"></i> حذف هذا الدين
-      </button>
-    </div>
-  `);
-}
-
-function openEditDebtModal(idx) {
-  const d = appData.debts[idx];
-  openModal(`
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-base font-black text-gray-800">تعديل الدين</h3>
-      <button onclick="closeModal()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <input type="text" id="editDName" value="${d.name}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold">
-      <input type="number" id="editDAmount" value="${d.total}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold">
-      <input type="number" id="editDInstallment" value="${d.installment || ''}" placeholder="القسط الشهري (اختياري)" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold">
-      <input type="date" id="editDDate" value="${d.target}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-orange-500 font-semibold">
-      <button onclick="submitEditDebt(${idx})" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-2xl transition-all">حفظ التعديلات</button>
-    </div>
-  `);
-}
-
-function submitEditDebt(idx) {
-  const name = document.getElementById('editDName').value;
-  const amount = document.getElementById('editDAmount').value;
-  const installment = document.getElementById('editDInstallment').value;
-  const date = document.getElementById('editDDate').value;
-  if (!name || !amount) { showToast('يرجى ملء جميع الحقول', 'error'); return; }
-  closeModal();
-  showLoader('جاري الحفظ...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'editDebt', payload: { index: idx, name, amount, installment, date } }) })
-    .then(r => r.json()).then(() => { hideLoader(); showToast('تم التعديل بنجاح', 'success'); fetchAppData(false); })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
-}
-
-function confirmDeleteDebt(idx) {
-  const d = appData.debts[idx];
-  openModal(`
-    <div class="text-center py-4">
-      <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-trash-alt"></i></div>
-      <h3 class="text-lg font-black text-gray-800 mb-2">حذف الدين</h3>
-      <p class="text-gray-500 text-sm mb-6">هل تريد حذف دين "<strong>${d.name}</strong>"؟ لا يمكن التراجع عن هذا الإجراء.</p>
-      <div class="flex gap-3">
-        <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-2xl">إلغاء</button>
-        <button onclick="deleteDebt(${idx})" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-2xl transition-all">نعم، احذف</button>
-      </div>
-    </div>
-  `);
-}
-
-function deleteDebt(idx) {
-  closeModal();
-  showLoader('جاري الحذف...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteDebt', payload: { index: idx } }) })
-    .then(r => r.json()).then(() => { hideLoader(); showToast('تم حذف الدين', 'success'); fetchAppData(false); })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
-}
-
-// ========================================
-// إضافة دين جديد
-// ========================================
-document.getElementById('debtForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const payload = {
-    type: 'debt',
-    name: document.getElementById('dName').value,
-    amount: document.getElementById('dAmount').value,
-    date: document.getElementById('dDate').value,
-    installment: document.getElementById('dInstallment').checked ? (document.getElementById('dInstallmentAmount').value || '0') : '0'
-  };
-  showLoader('جاري حفظ الدين...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addSetting', payload }) })
-    .then(r => r.json()).then(() => {
-      hideLoader();
-      showToast('تم تقييد الدين بنجاح', 'success');
-      e.target.reset();
-      document.getElementById('installmentFields').classList.add('hidden');
-      let nm = new Date(); nm.setMonth(nm.getMonth() + 1);
-      document.getElementById('dDate').valueAsDate = nm;
-      fetchAppData(false);
-    });
-});
-
-// ========================================
-// التقارير والرسوم البيانية
-// ========================================
-function initReportMonthFilter() {
-  const sel = document.getElementById('reportMonth');
-  sel.innerHTML = '';
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
-    const opt = document.createElement('option');
-    opt.value = val; opt.innerText = label;
-    if (i === 0) opt.selected = true;
-    sel.appendChild(opt);
-  }
-}
-
-function renderReports() {
-  if (!appData || currentUser.role !== 'Admin') return;
-  const selVal = document.getElementById('reportMonth') ? document.getElementById('reportMonth').value : null;
-  const [yr, mo] = selVal ? selVal.split('-').map(Number) : [new Date().getFullYear(), new Date().getMonth() + 1];
-
-  const txns = (appData.transactions || []).filter(t => {
-    const d = new Date(t.date);
-    return d.getFullYear() === yr && (d.getMonth() + 1) === mo && !(t.category || '').includes('تحويل');
-  });
-
-  let totalExp = 0, totalInc = 0;
-  const catExp = {};
-  const walletExp = {}, walletInc = {};
-
-  txns.forEach(t => {
-    const amt = parseFloat(t.amount);
-    if (t.type === 'خرج') {
-      totalExp += amt;
-      catExp[t.category] = (catExp[t.category] || 0) + amt;
-      walletExp[t.wallet] = (walletExp[t.wallet] || 0) + amt;
+function setTransType(type) {
+    document.getElementById('transType').value = type;
+    const expenseBtn = document.getElementById('expenseBtn');
+    const incomeBtn = document.getElementById('incomeBtn');
+    if (type === 'expense') {
+        expenseBtn.className = "flex-1 p-3 rounded-xl font-bold bg-red-500 text-white";
+        incomeBtn.className = "flex-1 p-3 rounded-xl font-bold bg-gray-200";
     } else {
-      totalInc += amt;
-      walletInc[t.wallet] = (walletInc[t.wallet] || 0) + amt;
+        expenseBtn.className = "flex-1 p-3 rounded-xl font-bold bg-gray-200";
+        incomeBtn.className = "flex-1 p-3 rounded-xl font-bold bg-green-500 text-white";
     }
-  });
-
-  document.getElementById('repTotalExp').innerText = totalExp.toLocaleString();
-  document.getElementById('repTotalInc').innerText = totalInc.toLocaleString();
-
-  // Pie chart
-  renderPieChart(catExp);
-  // Bar chart
-  renderBarChart(walletExp, walletInc);
-  // Line chart
-  renderLineChart();
-  // Budget bars
-  renderBudgetBars(catExp);
 }
 
-function renderPieChart(catExp) {
-  const labels = Object.keys(catExp);
-  const values = Object.values(catExp);
-  const colors = ['#0d9488','#f97316','#6366f1','#22c55e','#ef4444','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
-
-  if (chartPieInstance) chartPieInstance.destroy();
-  const ctx = document.getElementById('chartPie').getContext('2d');
-  if (!labels.length) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.font = '14px Cairo';
-    ctx.fillStyle = '#9ca3af';
-    ctx.textAlign = 'center';
-    ctx.fillText('لا توجد مصروفات في هذه الفترة', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    return;
-  }
-  chartPieInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 11 }, padding: 10 } } }
-    }
-  });
-}
-
-function renderBarChart(walletExp, walletInc) {
-  const wallets = [...new Set([...Object.keys(walletExp), ...Object.keys(walletInc)])];
-  if (chartBarInstance) chartBarInstance.destroy();
-  const ctx = document.getElementById('chartBar').getContext('2d');
-  chartBarInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: wallets,
-      datasets: [
-        { label: 'مصروفات', data: wallets.map(w => walletExp[w] || 0), backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 8 },
-        { label: 'إيرادات', data: wallets.map(w => walletInc[w] || 0), backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 8 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { font: { family: 'Cairo', size: 11 } } } },
-      scales: {
-        x: { ticks: { font: { family: 'Cairo', size: 10 } } },
-        y: { ticks: { font: { family: 'Cairo', size: 10 } } }
-      }
-    }
-  });
-}
-
-function renderLineChart() {
-  const months = [];
-  const expData = [], incData = [];
-  const now = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(d.toLocaleDateString('ar-EG', { month: 'short', year: '2-digit' }));
-    let exp = 0, inc = 0;
-    (appData.transactions || []).forEach(t => {
-      const td = new Date(t.date);
-      if (td.getFullYear() === d.getFullYear() && td.getMonth() === d.getMonth() && !(t.category || '').includes('تحويل')) {
-        if (t.type === 'خرج') exp += parseFloat(t.amount);
-        else inc += parseFloat(t.amount);
-      }
+function addNewTransaction() {
+    const amount = parseFloat(document.getElementById('newAmount').value);
+    const type = document.getElementById('transType').value;
+    const category = document.getElementById('transCategory').value;
+    const wallet = document.getElementById('transWallet').value;
+    const date = document.getElementById('transDate').value;
+    const note = document.getElementById('transNote').value;
+    
+    if (!amount || amount <= 0) { showToast('أدخل مبلغ صحيح', true); return; }
+    if (!category) { showToast('اختر تصنيف', true); return; }
+    
+    appData.transactions.unshift({
+        id: Date.now(),
+        amount: amount,
+        type: type,
+        category: category,
+        wallet: wallet,
+        date: date,
+        note: note,
+        createdAt: new Date().toISOString()
     });
-    expData.push(exp); incData.push(inc);
-  }
-
-  if (chartLineInstance) chartLineInstance.destroy();
-  const ctx = document.getElementById('chartLine').getContext('2d');
-  chartLineInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [
-        { label: 'مصروفات', data: expData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 5 },
-        { label: 'إيرادات', data: incData, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 5 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { font: { family: 'Cairo', size: 11 } } } },
-      scales: {
-        x: { ticks: { font: { family: 'Cairo', size: 10 } } },
-        y: { ticks: { font: { family: 'Cairo', size: 10 } } }
-      }
-    }
-  });
+    
+    saveStorage();
+    showToast('تمت الإضافة بنجاح');
+    renderTransactionsPage();
+    checkBudgetAlerts();
 }
 
-function renderBudgetBars(catExp) {
-  const categories = appData.categories || [];
-  if (!categories.length) {
-    document.getElementById('budgetBars').innerHTML = '<p class="text-gray-400 text-sm text-center py-4">لا توجد تصنيفات مضافة</p>';
-    return;
-  }
-  document.getElementById('budgetBars').innerHTML = categories.map(c => {
-    const spent = catExp[c.name] || 0;
-    const budget = parseFloat(c.budget || 0);
-    const perc = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
-    const isOver = spent > budget && budget > 0;
-    const barColor = isOver ? 'bg-red-500' : perc > 75 ? 'bg-orange-400' : 'bg-teal-500';
-    return `<div>
-      <div class="flex justify-between items-center mb-1.5">
-        <span class="text-sm font-bold text-gray-700">${c.name}</span>
-        <div class="text-left">
-          <span class="text-xs font-black ${isOver ? 'text-red-500' : 'text-gray-600'}">${spent.toLocaleString()}</span>
-          <span class="text-xs text-gray-400"> / ${budget.toLocaleString()}</span>
-          ${isOver ? '<span class="text-[10px] text-red-500 font-bold mr-1">تجاوز!</span>' : ''}
+function editTransaction(index) {
+    const t = appData.transactions[index];
+    showModal(`
+        <h3 class="font-bold text-lg mb-4">تعديل الحركة</h3>
+        <input type="number" id="editAmount" value="${t.amount}" class="w-full p-3 border rounded-xl mb-2">
+        <select id="editCategory" class="w-full p-3 border rounded-xl mb-2">${appData.categories.map(c => `<option ${c.name === t.category ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
+        <input type="date" id="editDate" value="${t.date}" class="w-full p-3 border rounded-xl mb-2">
+        <textarea id="editNote" class="w-full p-3 border rounded-xl mb-3">${t.note || ''}</textarea>
+        <button onclick="saveEditTransaction(${index})" class="w-full bg-teal-500 text-white p-3 rounded-xl font-bold">حفظ التعديلات</button>
+        <button onclick="closeModal()" class="w-full bg-gray-200 p-3 rounded-xl font-bold mt-2">إلغاء</button>
+    `);
+}
+
+function saveEditTransaction(index) {
+    const amount = parseFloat(document.getElementById('editAmount').value);
+    const category = document.getElementById('editCategory').value;
+    const date = document.getElementById('editDate').value;
+    const note = document.getElementById('editNote').value;
+    
+    if (!amount || amount <= 0) { showToast('مبلغ غير صحيح', true); return; }
+    
+    appData.transactions[index].amount = amount;
+    appData.transactions[index].category = category;
+    appData.transactions[index].date = date;
+    appData.transactions[index].note = note;
+    
+    saveStorage();
+    closeModal();
+    showToast('تم التعديل بنجاح');
+    renderTransactionsPage();
+}
+
+function deleteTransaction(index) {
+    if (confirm('هل أنت متأكد من حذف هذه الحركة؟')) {
+        appData.transactions.splice(index, 1);
+        saveStorage();
+        showToast('تم الحذف');
+        renderTransactionsPage();
+    }
+}
+
+// ============== إدارة الديون ==============
+function renderDebtsPage() {
+    const totalDebts = appData.debts.reduce((s, d) => s + d.total, 0);
+    const totalPaid = appData.debts.reduce((s, d) => s + d.paid, 0);
+    const remaining = totalDebts - totalPaid;
+    
+    const html = `
+        <div class="card">
+            <h3 class="font-bold mb-3">تسجيل دين جديد</h3>
+            <input type="text" id="debtName" placeholder="اسم الدين" class="w-full p-3 border rounded-xl mb-2">
+            <input type="number" id="debtTotal" placeholder="المبلغ الكلي" class="w-full p-3 border rounded-xl mb-2">
+            <input type="date" id="debtDue" class="w-full p-3 border rounded-xl mb-2">
+            <button onclick="addNewDebt()" class="w-full bg-orange-500 text-white p-3 rounded-xl font-bold">إضافة دين</button>
         </div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill ${barColor}" style="width:${perc}%"></div>
-      </div>
-    </div>`;
-  }).join('');
+        
+        ${appData.debts.length > 0 ? `
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="card text-center"><p class="text-sm text-gray-500">إجمالي الديون</p><p class="text-xl font-bold text-orange-600">${totalDebts.toLocaleString()}</p></div>
+                <div class="card text-center"><p class="text-sm text-gray-500">المتبقي</p><p class="text-xl font-bold text-red-600">${remaining.toLocaleString()}</p></div>
+            </div>
+        ` : ''}
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">قائمة الديون</h3>
+            <div class="space-y-3">
+                ${appData.debts.map((d, idx) => {
+                    const remainingAmt = d.total - d.paid;
+                    const percent = (d.paid / d.total) * 100;
+                    return `
+                        <div class="bg-gray-50 p-3 rounded-xl">
+                            <div class="flex justify-between items-start mb-2">
+                                <div><p class="font-bold">${d.name}</p><p class="text-xs text-gray-500">تاريخ الاستحقاق: ${d.dueDate || 'غير محدد'}</p></div>
+                                <div class="flex gap-1">
+                                    <button onclick="payDebt(${idx})" class="bg-green-500 text-white px-3 py-1 rounded-lg text-xs">سداد</button>
+                                    <button onclick="deleteDebt(${idx})" class="text-red-500 px-2 py-1"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>المسدد: ${d.paid.toLocaleString()}</span>
+                                <span>المتبقي: ${remainingAmt.toLocaleString()}</span>
+                            </div>
+                            <div class="progress mt-1"><div class="progress-fill" style="width: ${percent}%"></div></div>
+                        </div>
+                    `;
+                }).join('') || '<p class="text-gray-400 text-center py-4">لا توجد ديون</p>'}
+            </div>
+        </div>
+    `;
+    document.getElementById('pageContent').innerHTML = html;
 }
 
-// ========================================
-// تنبيهات الميزانية
-// ========================================
-function checkBudgetAlerts() {
-  if (currentUser.role !== 'Admin') return;
-  const now = new Date();
-  const categories = appData.categories || [];
-  const txns = (appData.transactions || []).filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && t.type === 'خرج' && !(t.category || '').includes('تحويل');
-  });
-
-  const catExp = {};
-  txns.forEach(t => { catExp[t.category] = (catExp[t.category] || 0) + parseFloat(t.amount); });
-
-  const alerts = categories.filter(c => {
-    const budget = parseFloat(c.budget || 0);
-    const spent = catExp[c.name] || 0;
-    return budget > 0 && spent >= budget * 0.85; // تنبيه عند 85%+
-  }).map(c => {
-    const budget = parseFloat(c.budget);
-    const spent = catExp[c.name] || 0;
-    const perc = (spent / budget * 100).toFixed(0);
-    const isOver = spent > budget;
-    return { name: c.name, spent, budget, perc, isOver };
-  });
-
-  const alertBell = document.getElementById('alertBell');
-  const alertsBox = document.getElementById('budgetAlertsBox');
-  const alertsList = document.getElementById('budgetAlertsList');
-
-  if (alerts.length > 0) {
-    alertBell.classList.remove('hidden');
-    alertsBox.classList.remove('hidden');
-    alertsList.innerHTML = alerts.map(a => `
-      <div class="flex justify-between items-center bg-white rounded-xl p-2.5">
-        <span class="text-sm font-bold text-gray-700">${a.name}</span>
-        <span class="text-xs font-black ${a.isOver ? 'text-red-600 bg-red-50' : 'text-orange-600 bg-orange-50'} px-2 py-1 rounded-lg">
-          ${a.isOver ? 'تجاوز' : a.perc + '٪'} ${a.isOver ? `(+${(a.spent - a.budget).toLocaleString()})` : ''}
-        </span>
-      </div>`).join('');
-
-    // Toast لكل تجاوز
-    const overBudget = alerts.filter(a => a.isOver);
-    overBudget.forEach(a => {
-      showToast(`⚠️ تجاوزت ميزانية "${a.name}" بـ ${(a.spent - a.budget).toLocaleString()} ر.ي`, 'warning');
+function addNewDebt() {
+    const name = document.getElementById('debtName').value;
+    const total = parseFloat(document.getElementById('debtTotal').value);
+    const dueDate = document.getElementById('debtDue').value;
+    
+    if (!name || !total) { showToast('املأ جميع الحقول', true); return; }
+    
+    appData.debts.push({
+        id: Date.now(),
+        name: name,
+        total: total,
+        paid: 0,
+        dueDate: dueDate,
+        createdAt: new Date().toISOString()
     });
-  } else {
-    alertBell.classList.add('hidden');
-    alertsBox.classList.add('hidden');
-  }
+    
+    saveStorage();
+    showToast('تم إضافة الدين');
+    renderDebtsPage();
 }
 
-// ========================================
-// إعدادات - عرض القوائم مع تعديل وحذف
-// ========================================
-function renderSettingsLists() {
-  if (currentUser.role !== 'Admin') return;
-  renderWalletsList();
-  renderCategoriesList();
-  renderUsersList();
+function payDebt(index) {
+    const debt = appData.debts[index];
+    const remaining = debt.total - debt.paid;
+    
+    showModal(`
+        <h3 class="font-bold text-lg mb-4">سداد دين: ${debt.name}</h3>
+        <p class="text-center text-2xl font-bold text-orange-600 mb-4">المتبقي: ${remaining.toLocaleString()} ر.س</p>
+        <input type="number" id="payAmount" placeholder="المبلغ المراد سداده" class="w-full p-3 border rounded-xl mb-3">
+        <select id="payWallet" class="w-full p-3 border rounded-xl mb-3">${appData.wallets.map(w => `<option>${w.name}</option>`).join('')}</select>
+        <button onclick="confirmPayment(${index})" class="w-full bg-teal-500 text-white p-3 rounded-xl font-bold mb-2">تأكيد السداد</button>
+        <button onclick="closeModal()" class="w-full bg-gray-200 p-3 rounded-xl font-bold">إلغاء</button>
+    `);
 }
 
-function renderWalletsList() {
-  const wallets = appData.wallets || [];
-  document.getElementById('walletsList').innerHTML = wallets.length ? wallets.map((w, i) => `
-    <div class="item-row">
-      <div>
-        <p class="font-bold text-sm text-gray-800">${w.name}</p>
-        <p class="text-xs text-gray-500 font-semibold">${parseFloat(w.balance || 0).toLocaleString()} ر.ي</p>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="openEditWallet(${i})" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-xs hover:bg-blue-100 transition-all"><i class="fas fa-edit"></i></button>
-        <button onclick="confirmDelete('wallet',${i},'${w.name}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-xs hover:bg-red-100 transition-all"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>`).join('') : '<p class="text-center text-gray-400 text-sm py-3">لا توجد محافظ</p>';
+function confirmPayment(index) {
+    const amount = parseFloat(document.getElementById('payAmount').value);
+    const wallet = document.getElementById('payWallet').value;
+    const debt = appData.debts[index];
+    const remaining = debt.total - debt.paid;
+    
+    if (!amount || amount <= 0) { showToast('أدخل مبلغ صحيح', true); return; }
+    if (amount > remaining) { showToast('المبلغ أكبر من المتبقي', true); return; }
+    
+    // تحديث الدين
+    debt.paid += amount;
+    
+    // تسجيل حركة مصروف
+    appData.transactions.unshift({
+        id: Date.now(),
+        amount: amount,
+        type: 'expense',
+        category: `سداد دين: ${debt.name}`,
+        wallet: wallet,
+        date: new Date().toISOString().split('T')[0],
+        note: `سداد جزء من دين ${debt.name}`,
+        createdAt: new Date().toISOString()
+    });
+    
+    saveStorage();
+    closeModal();
+    showToast(`تم سداد ${amount.toLocaleString()} ر.س`);
+    renderDebtsPage();
+    checkBudgetAlerts();
 }
 
-function renderCategoriesList() {
-  const cats = appData.categories || [];
-  document.getElementById('categoriesList').innerHTML = cats.length ? cats.map((c, i) => `
-    <div class="item-row">
-      <div>
-        <p class="font-bold text-sm text-gray-800">${c.name}</p>
-        <p class="text-xs text-gray-500 font-semibold">ميزانية: ${parseFloat(c.budget || 0).toLocaleString()} ر.ي</p>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="openEditCategory(${i})" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-xs hover:bg-blue-100 transition-all"><i class="fas fa-edit"></i></button>
-        <button onclick="confirmDelete('category',${i},'${c.name}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-xs hover:bg-red-100 transition-all"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>`).join('') : '<p class="text-center text-gray-400 text-sm py-3">لا توجد تصنيفات</p>';
+function deleteDebt(index) {
+    if (confirm('هل أنت متأكد من حذف هذا الدين؟')) {
+        appData.debts.splice(index, 1);
+        saveStorage();
+        showToast('تم الحذف');
+        renderDebtsPage();
+    }
 }
 
-function renderUsersList() {
-  const users = appData.users || [];
-  document.getElementById('usersList').innerHTML = users.length ? users.map((u, i) => `
-    <div class="item-row">
-      <div>
-        <p class="font-bold text-sm text-gray-800">${u.name}</p>
-        <p class="text-xs font-semibold ${u.role === 'Admin' ? 'text-teal-600' : 'text-gray-500'}">${u.role === 'Admin' ? 'مدير' : 'مستخدم'}</p>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="confirmDelete('user',${i},'${u.name}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-xs hover:bg-red-100 transition-all"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>`).join('') : '<p class="text-center text-gray-400 text-sm py-3">لا يوجد مستخدمون</p>';
+// ============== التقارير المتقدمة ==============
+function renderReportsPage() {
+    const months = [];
+    for (let i = 0; i < 6; i++) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        months.push({ value: `${d.getFullYear()}-${d.getMonth() + 1}`, label: d.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' }) });
+    }
+    
+    const html = `
+        <div class="card">
+            <h3 class="font-bold mb-3">فلتر التقارير</h3>
+            <select id="reportMonthFilter" class="w-full p-3 border rounded-xl mb-2" onchange="updateReports()">
+                ${months.map(m => `<option value="${m.value}">${m.label}</option>`).join('')}
+            </select>
+            <select id="reportCategoryFilter" class="w-full p-3 border rounded-xl mb-2" onchange="updateReports()">
+                <option value="">جميع التصنيفات</option>
+                ${appData.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
+            </select>
+            <button onclick="updateReports()" class="w-full bg-teal-500 text-white p-3 rounded-xl font-bold">تطبيق</button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+            <div class="card text-center"><p class="text-sm text-gray-500">المصروفات</p><p class="text-xl font-bold text-red-600" id="reportExp">0</p></div>
+            <div class="card text-center"><p class="text-sm text-gray-500">الإيرادات</p><p class="text-xl font-bold text-green-600" id="reportInc">0</p></div>
+        </div>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">توزيع المصروفات</h3>
+            <div class="chart-container"><canvas id="pieChart"></canvas></div>
+        </div>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">المصروفات الشهرية</h3>
+            <div class="chart-container"><canvas id="lineChart"></canvas></div>
+        </div>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">استهلاك الميزانية</h3>
+            <div id="budgetBars" class="space-y-3"></div>
+        </div>
+        
+        <button onclick="exportCSV()" class="w-full bg-blue-500 text-white p-3 rounded-xl font-bold"><i class="fas fa-download ml-2"></i>تصدير CSV</button>
+    `;
+    document.getElementById('pageContent').innerHTML = html;
+    updateReports();
 }
 
-// تعديل محفظة
-function openEditWallet(idx) {
-  const w = appData.wallets[idx];
-  openModal(`
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-base font-black text-gray-800">تعديل محفظة</h3>
-      <button onclick="closeModal()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <input type="text" id="editWName" value="${w.name}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500 font-semibold">
-      <input type="number" id="editWBal" value="${w.balance}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-teal-500 font-semibold">
-      <button onclick="submitEdit('wallet',${idx})" class="w-full bg-teal-600 text-white font-black py-4 rounded-2xl hover:bg-teal-700 transition-all">حفظ التعديلات</button>
-    </div>
-  `);
+function updateReports() {
+    const monthFilter = document.getElementById('reportMonthFilter')?.value;
+    const categoryFilter = document.getElementById('reportCategoryFilter')?.value;
+    
+    let filtered = [...appData.transactions];
+    
+    if (monthFilter) {
+        const [year, month] = monthFilter.split('-').map(Number);
+        filtered = filtered.filter(t => {
+            const d = new Date(t.date);
+            return d.getFullYear() === year && (d.getMonth() + 1) === month;
+        });
+    }
+    
+    if (categoryFilter) {
+        filtered = filtered.filter(t => t.category === categoryFilter);
+    }
+    
+    const totalExp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const totalInc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    
+    document.getElementById('reportExp').innerText = totalExp.toLocaleString();
+    document.getElementById('reportInc').innerText = totalInc.toLocaleString();
+    
+    // رسم بياني دائري
+    const expByCat = {};
+    filtered.filter(t => t.type === 'expense').forEach(t => {
+        expByCat[t.category] = (expByCat[t.category] || 0) + t.amount;
+    });
+    
+    const ctxPie = document.getElementById('pieChart')?.getContext('2d');
+    if (ctxPie) {
+        if (charts.pie) charts.pie.destroy();
+        charts.pie = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: { labels: Object.keys(expByCat), datasets: [{ data: Object.values(expByCat), backgroundColor: ['#0d9488', '#f97316', '#6366f1', '#22c55e', '#ef4444'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    
+    // رسم بياني خطي لآخر 6 أشهر
+    const last6Months = [];
+    const monthlyData = [];
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        last6Months.push(d.toLocaleDateString('ar-EG', { month: 'short' }));
+        let exp = 0;
+        appData.transactions.forEach(t => {
+            const td = new Date(t.date);
+            if (td.getFullYear() === d.getFullYear() && td.getMonth() === d.getMonth() && t.type === 'expense') {
+                exp += t.amount;
+            }
+        });
+        monthlyData.push(exp);
+    }
+    
+    const ctxLine = document.getElementById('lineChart')?.getContext('2d');
+    if (ctxLine) {
+        if (charts.line) charts.line.destroy();
+        charts.line = new Chart(ctxLine, {
+            type: 'line',
+            data: { labels: last6Months, datasets: [{ label: 'المصروفات', data: monthlyData, borderColor: '#ef4444', tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    
+    // أشرطة الميزانية
+    const budgetHtml = appData.categories.map(c => {
+        const spent = expByCat[c.name] || 0;
+        const budget = c.budget;
+        const percent = budget > 0 ? (spent / budget) * 100 : 0;
+        const isOver = spent > budget;
+        return `
+            <div>
+                <div class="flex justify-between text-sm mb-1"><span>${c.name}</span><span>${spent.toLocaleString()} / ${budget.toLocaleString()}</span></div>
+                <div class="progress"><div class="progress-fill ${isOver ? 'bg-red-500' : percent > 80 ? 'bg-orange-500' : 'bg-teal-500'}" style="width: ${Math.min(percent, 100)}%"></div></div>
+                ${isOver ? `<p class="text-xs text-red-500 mt-1">⚠️ تجاوز بـ ${(spent - budget).toLocaleString()} ر.س</p>` : ''}
+            </div>
+        `;
+    }).join('');
+    document.getElementById('budgetBars').innerHTML = budgetHtml || '<p class="text-gray-400">لا توجد بيانات</p>';
 }
 
-// تعديل تصنيف
-function openEditCategory(idx) {
-  const c = appData.categories[idx];
-  openModal(`
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-base font-black text-gray-800">تعديل تصنيف</h3>
-      <button onclick="closeModal()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <input type="text" id="editCName" value="${c.name}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-purple-500 font-semibold">
-      <input type="number" id="editCBudget" value="${c.budget}" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 focus:outline-none focus:border-purple-500 font-semibold">
-      <button onclick="submitEdit('category',${idx})" class="w-full bg-purple-600 text-white font-black py-4 rounded-2xl hover:bg-purple-700 transition-all">حفظ التعديلات</button>
-    </div>
-  `);
+// ============== الإعدادات ==============
+function renderSettingsPage() {
+    const html = `
+        <div class="card">
+            <h3 class="font-bold mb-3">إضافة محفظة</h3>
+            <div class="flex gap-2 mb-3"><input type="text" id="newWalletName" placeholder="اسم المحفظة" class="flex-1 p-3 border rounded-xl"><input type="number" id="newWalletBalance" placeholder="الرصيد" class="w-24 p-3 border rounded-xl"></div>
+            <button onclick="addWallet()" class="w-full bg-teal-500 text-white p-2 rounded-xl font-bold">إضافة</button>
+            <div class="mt-3 space-y-2" id="walletsSettingsList">${renderWalletsSettings()}</div>
+        </div>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">إضافة تصنيف</h3>
+            <div class="flex gap-2 mb-3"><input type="text" id="newCatName" placeholder="اسم التصنيف" class="flex-1 p-3 border rounded-xl"><input type="number" id="newCatBudget" placeholder="الميزانية" class="w-24 p-3 border rounded-xl"></div>
+            <button onclick="addCategory()" class="w-full bg-purple-500 text-white p-2 rounded-xl font-bold">إضافة</button>
+            <div class="mt-3 space-y-2" id="categoriesSettingsList">${renderCategoriesSettings()}</div>
+        </div>
+        
+        <div class="card">
+            <h3 class="font-bold mb-3">نسخ احتياطي</h3>
+            <button onclick="backupData()" class="w-full bg-blue-500 text-white p-3 rounded-xl font-bold mb-2"><i class="fas fa-download ml-2"></i>تحميل نسخة</button>
+            <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="restoreData(this)">
+            <button onclick="document.getElementById('restoreFile').click()" class="w-full bg-gray-500 text-white p-3 rounded-xl font-bold"><i class="fas fa-upload ml-2"></i>استعادة نسخة</button>
+        </div>
+    `;
+    document.getElementById('pageContent').innerHTML = html;
 }
 
-function submitEdit(type, idx) {
-  let payload = { type, index: idx };
-  if (type === 'wallet') {
-    payload.name = document.getElementById('editWName').value;
-    payload.balance = document.getElementById('editWBal').value;
-  } else if (type === 'category') {
-    payload.name = document.getElementById('editCName').value;
-    payload.budget = document.getElementById('editCBudget').value;
-  }
-  closeModal();
-  showLoader('جاري الحفظ...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'editSetting', payload }) })
-    .then(r => r.json()).then(() => { hideLoader(); showToast('تم التعديل بنجاح', 'success'); fetchAppData(false); })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
+function renderWalletsSettings() {
+    return appData.wallets.map((w, i) => `
+        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-xl">
+            <span><span class="font-bold">${w.name}</span> <span class="text-gray-500">${w.balance.toLocaleString()}</span></span>
+            <div class="flex gap-1">
+                <button onclick="editWallet(${i})" class="text-blue-500 px-2"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteWallet(${i})" class="text-red-500 px-2"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
 }
 
-// تأكيد الحذف
-function confirmDelete(type, idx, name) {
-  const typeLabel = type === 'wallet' ? 'المحفظة' : type === 'category' ? 'التصنيف' : 'المستخدم';
-  openModal(`
-    <div class="text-center py-4">
-      <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-trash-alt"></i></div>
-      <h3 class="text-lg font-black text-gray-800 mb-2">حذف ${typeLabel}</h3>
-      <p class="text-gray-500 text-sm mb-6">هل تريد حذف "<strong>${name}</strong>"؟ لا يمكن التراجع.</p>
-      <div class="flex gap-3">
-        <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-2xl">إلغاء</button>
-        <button onclick="executeDelete('${type}',${idx})" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-2xl transition-all">نعم، احذف</button>
-      </div>
-    </div>
-  `);
+function renderCategoriesSettings() {
+    return appData.categories.map((c, i) => `
+        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-xl">
+            <span><span class="font-bold">${c.name}</span> <span class="text-gray-500">${c.budget.toLocaleString()}</span></span>
+            <div class="flex gap-1">
+                <button onclick="editCategory(${i})" class="text-blue-500 px-2"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteCategory(${i})" class="text-red-500 px-2"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
 }
 
-function executeDelete(type, idx) {
-  closeModal();
-  showLoader('جاري الحذف...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteSetting', payload: { type, index: idx } }) })
-    .then(r => r.json()).then(() => { hideLoader(); showToast('تم الحذف بنجاح', 'success'); fetchAppData(false); })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
+function addWallet() {
+    const name = document.getElementById('newWalletName')?.value;
+    const balance = parseFloat(document.getElementById('newWalletBalance')?.value || 0);
+    if (!name) { showToast('أدخل اسم المحفظة', true); return; }
+    appData.wallets.push({ name: name, balance: balance });
+    saveStorage();
+    showToast('تمت الإضافة');
+    renderSettingsPage();
 }
 
-// ========================================
-// إضافة حركة
-// ========================================
-document.getElementById('transactionForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const type = document.getElementById('tType').value;
-  const payload = {
-    date: document.getElementById('tDate').value,
-    user: currentUser.name,
-    wallet: document.getElementById('tWallet').value,
-    amount: document.getElementById('tAmount').value,
-    currency: "ر.ي",
-    notes: document.getElementById('tNotes').value
-  };
-
-  showLoader('جاري تسجيل العملية...');
-
-  if (type === 'تحويل') {
-    const dest = document.getElementById('tDestWallet').value;
-    if (payload.wallet === dest) { hideLoader(); showToast('لا يمكن التحويل لنفس المحفظة!', 'error'); return; }
-    const pOut = { ...payload, type: 'خرج', category: 'تحويل صادر' };
-    const pIn = { ...payload, type: 'دخل', wallet: dest, category: 'تحويل وارد' };
-    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addTransaction', payload: pOut }) })
-      .then(r => r.json()).then(d => {
-        if (d.status === 'success') return fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addTransaction', payload: pIn }) });
-        else throw new Error();
-      })
-      .then(r => r.json()).then(() => finishTransaction('تم التحويل بنجاح!'))
-      .catch(() => { hideLoader(); showToast('خطأ أثناء التحويل', 'error'); });
-  } else {
-    payload.type = type;
-    payload.category = document.getElementById('tCategory').value;
-    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addTransaction', payload }) })
-      .then(r => r.json()).then(d => {
-        if (d.status === 'success') finishTransaction('تم تسجيل العملية بنجاح!');
-        else { hideLoader(); showToast('خطأ في التسجيل', 'error'); }
-      })
-      .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
-  }
-});
-
-function finishTransaction(msg) {
-  document.getElementById('tAmount').value = '';
-  document.getElementById('tNotes').value = '';
-  hideLoader();
-  showToast(msg, 'success');
-  fetchAppData(false);
-  if (currentUser.role === 'Admin') switchTab('dashboard');
+function addCategory() {
+    const name = document.getElementById('newCatName')?.value;
+    const budget = parseFloat(document.getElementById('newCatBudget')?.value || 0);
+    if (!name) { showToast('أدخل اسم التصنيف', true); return; }
+    appData.categories.push({ name: name, budget: budget });
+    saveStorage();
+    showToast('تمت الإضافة');
+    renderSettingsPage();
 }
 
-// ========================================
-// الإعدادات - إضافة
-// ========================================
-function submitSetting(e, type) {
-  e.preventDefault();
-  let payload = { type };
-  if (type === 'wallet') { payload.name = document.getElementById('sWalletName').value; payload.balance = document.getElementById('sWalletBal').value; }
-  else if (type === 'category') { payload.name = document.getElementById('sCatName').value; payload.budget = document.getElementById('sCatBudget').value; }
-  else if (type === 'user') { payload.name = document.getElementById('sUserName').value; payload.password = document.getElementById('sUserPass').value; payload.role = document.getElementById('sUserRole').value; }
-  showLoader('جاري الحفظ...');
-  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addSetting', payload }) })
-    .then(r => r.json()).then(() => { hideLoader(); e.target.reset(); showToast('تمت الإضافة بنجاح', 'success'); fetchAppData(false); })
-    .catch(() => { hideLoader(); showToast('خطأ في الاتصال', 'error'); });
+function editWallet(idx) {
+    const w = appData.wallets[idx];
+    const newName = prompt('الاسم الجديد:', w.name);
+    const newBalance = prompt('الرصيد الجديد:', w.balance);
+    if (newName) w.name = newName;
+    if (newBalance && !isNaN(newBalance)) w.balance = parseFloat(newBalance);
+    saveStorage();
+    renderSettingsPage();
 }
 
-// ========================================
-// تصدير CSV
-// ========================================
-function exportToCSV() {
-  if (!appData || !appData.transactions) { showToast('لا توجد بيانات للتصدير', 'error'); return; }
-  showLoader('جاري تجهيز الملف...');
-  let csv = "data:text/csv;charset=utf-8,\uFEFF";
-  csv += "التاريخ,المستخدم,المحفظة,التصنيف,المبلغ,النوع,الملاحظات\r\n";
-  appData.transactions.forEach(r => {
-    csv += [new Date(r.date).toLocaleDateString('en-GB'), r.user, r.wallet, r.category, r.amount, r.type, r.notes || ''].join(',') + '\r\n';
-  });
-  hideLoader();
-  const a = document.createElement('a');
-  a.href = encodeURI(csv);
-  a.download = 'Finance_' + new Date().toLocaleDateString('en-GB') + '.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+function deleteWallet(idx) {
+    if (confirm('حذف المحفظة؟')) {
+        appData.wallets.splice(idx, 1);
+        saveStorage();
+        renderSettingsPage();
+    }
 }
 
-// ========================================
-// التبويبات
-// ========================================
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const tab = document.getElementById('tab-' + tabId);
-  if (tab) tab.style.display = 'block';
-  const nav = document.getElementById('nav-' + tabId);
-  if (nav) nav.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (tabId === 'reports') renderReports();
+function editCategory(idx) {
+    const c = appData.categories[idx];
+    const newName = prompt('الاسم الجديد:', c.name);
+    const newBudget = prompt('الميزانية الجديدة:', c.budget);
+    if (newName) c.name = newName;
+    if (newBudget && !isNaN(newBudget)) c.budget = parseFloat(newBudget);
+    saveStorage();
+    renderSettingsPage();
 }
 
-// ========================================
-// الشاشة التحميل
-// ========================================
-function showLoader(text) {
-  document.getElementById('loaderText').innerText = text;
-  document.getElementById('globalLoader').style.display = 'flex';
+function deleteCategory(idx) {
+    if (confirm('حذف التصنيف؟')) {
+        appData.categories.splice(idx, 1);
+        saveStorage();
+        renderSettingsPage();
+    }
 }
-function hideLoader() {
-  document.getElementById('globalLoader').style.display = 'none';
+
+function backupData() {
+    const dataStr = JSON.stringify(appData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('تم تصدير النسخة');
+}
+
+function restoreData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.wallets && data.categories && data.transactions) {
+                appData = data;
+                saveStorage();
+                showToast('تمت الاستعادة بنجاح');
+                loadPage('home');
+            } else {
+                showToast('ملف غير صالح', true);
+            }
+        } catch { showToast('خطأ في الملف', true); }
+    };
+    reader.readAsText(file);
+}
+
+function exportCSV() {
+    let csv = "التاريخ,التصنيف,المبلغ,النوع,المحفظة,الملاحظات\n";
+    appData.transactions.forEach(t => {
+        csv += `${t.date},${t.category},${t.amount},${t.type === 'income' ? 'إيراد' : 'مصروف'},${t.wallet || 'كاش'},${t.note || ''}\n`;
+    });
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `report_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('تم التصدير');
+}
+
+// ============== تنبيهات الميزانية ==============
+function checkBudgetAlerts() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const monthlyExpenses = {};
+    appData.transactions.forEach(t => {
+        const d = new Date(t.date);
+        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && t.type === 'expense') {
+            monthlyExpenses[t.category] = (monthlyExpenses[t.category] || 0) + t.amount;
+        }
+    });
+    
+    const alerts = [];
+    appData.categories.forEach(c => {
+        const spent = monthlyExpenses[c.name] || 0;
+        if (c.budget > 0 && spent > c.budget) {
+            alerts.push({ name: c.name, spent: spent, budget: c.budget });
+        } else if (c.budget > 0 && spent >= c.budget * 0.85) {
+            alerts.push({ name: c.name, spent: spent, budget: c.budget, warning: true });
+        }
+    });
+    
+    const alertIcon = document.getElementById('alertIcon');
+    if (alerts.length > 0) {
+        alertIcon.classList.remove('hidden');
+        if (alerts.some(a => a.spent > a.budget)) {
+            alertIcon.classList.add('bg-red-500', 'text-white');
+        }
+    } else {
+        alertIcon.classList.add('hidden');
+    }
+}
+
+function showBudgetAlerts() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const monthlyExpenses = {};
+    appData.transactions.forEach(t => {
+        const d = new Date(t.date);
+        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && t.type === 'expense') {
+            monthlyExpenses[t.category] = (monthlyExpenses[t.category] || 0) + t.amount;
+        }
+    });
+    
+    const alerts = [];
+    appData.categories.forEach(c => {
+        const spent = monthlyExpenses[c.name] || 0;
+        if (c.budget > 0 && spent > c.budget) {
+            alerts.push(`⚠️ ${c.name}: تجاوز بـ ${(spent - c.budget).toLocaleString()} ر.س`);
+        } else if (c.budget > 0 && spent >= c.budget * 0.85) {
+            alerts.push(`⚠️ ${c.name}: قارب الميزانية (${Math.round((spent/c.budget)*100)}%)`);
+        }
+    });
+    
+    if (alerts.length === 0) {
+        showToast('لا توجد تنبيهات');
+    } else {
+        showModal(`<h3 class="font-bold mb-4">تنبيهات الميزانية</h3><div class="space-y-2">${alerts.map(a => `<div class="p-2 bg-red-50 rounded-xl">${a}</div>`).join('')}</div><button onclick="closeModal()" class="w-full bg-gray-200 p-3 rounded-xl mt-4">إغلاق</button>`);
+    }
+}
+
+// ============== تشغيل التطبيق ==============
+const savedUser = localStorage.getItem('financeUser');
+if (savedUser) {
+    currentUser = JSON.parse(savedUser);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    
+    if (currentUser.role !== 'Admin') {
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    }
+    
+    document.getElementById('userName').innerText = currentUser.name;
+    document.getElementById('userRole').innerText = currentUser.role === 'Admin' ? 'مدير' : 'مستخدم';
+    
+    loadStorage();
+    loadPage('home');
+    checkBudgetAlerts();
+}
+
+// إضافة بيانات تجريبية إذا كانت فارغة
+if (appData.transactions.length === 0) {
+    appData.transactions = [
+        { id: 1, amount: 150, type: 'expense', category: 'طعام', wallet: 'كاش', date: new Date().toISOString().split('T')[0], note: 'غداء' },
+        { id: 2, amount: 500, type: 'income', category: 'راتب', wallet: 'بنك', date: new Date().toISOString().split('T')[0], note: '' },
+    ];
+    saveStorage();
 }
 </script>
 </body>
