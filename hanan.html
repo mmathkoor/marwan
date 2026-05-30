@@ -1,12 +1,13 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دفتر تحضير الدروس - الأستاذ مروان</title>
+    <title>تحضير دروس - الأستاذ مروان (طباعة معتمدة)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
         
         body {
             font-family: 'Tajawal', sans-serif;
@@ -21,61 +22,109 @@
             font-family: inherit;
         }
 
-        /* إعدادات الطباعة الأساسية والآمنة للجوال */
+        /* ========================================= */
+        /* إعدادات الطباعة الصارمة (لإجبار متصفح الجوال) */
+        /* ========================================= */
         @media print {
             @page {
-                size: landscape;
-                margin: 1cm;
-            }
-            body { 
-                background-color: white !important; 
-                -webkit-print-color-adjust: exact;
-            }
-            .no-print { display: none !important; }
-            
-            /* إظهار كل المحتوى المخفي بسبب التمرير */
-            .print-overflow-visible {
-                overflow: visible !important;
-                display: block !important;
+                size: A4 landscape !important; /* الإجبار على A4 عرضي */
+                margin: 5mm !important;
             }
 
-            /* إخفاء حدود الحقول لتبدو كنص عادي */
+            body { 
+                background-color: white !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                /* السحر هنا: إجبار الجوال على عرض الصفحة كشاشة كمبيوتر عريضة لمنع التكسير */
+                min-width: 1150px !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .no-print { display: none !important; }
+
+            /* إخفاء حدود الإدخال وجعلها كنص مطبوع */
             input, textarea {
                 border: none !important;
                 background: transparent !important;
                 box-shadow: none !important;
                 padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* إجبار الحاويات على عدم التمدد أو التكسير */
+            #documentArea {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                display: block !important;
+                page-break-after: avoid !important;
+            }
+
+            /* منع الجدول من الانفصال عن الترويسة */
+            .table-container {
+                overflow: visible !important;
+                display: block !important;
+                page-break-before: avoid !important;
+                page-break-inside: auto !important;
+                margin-bottom: 5px !important;
             }
 
             /* حدود الجدول للطباعة */
-            .print-border { border: 1px solid #000 !important; }
-            th.print-border, td.print-border { border: 1px solid #000 !important; }
+            table { 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                border: 2px solid black !important;
+                font-size: 14px !important;
+            }
+            th, td { 
+                border: 1px solid black !important; 
+                padding: 4px !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* إجبار الترويسة على البقاء في سطر واحد عرضي */
+            .print-header-grid {
+                display: flex !important;
+                width: 100% !important;
+                border: 1px solid black !important;
+                margin-bottom: 5px !important;
+            }
+            .print-header-item {
+                flex: 1 !important;
+                border-left: 1px solid black !important;
+                padding: 2px !important;
+            }
+            .print-header-item:last-child { border-left: none !important; }
+
+            /* منع تكسر الصفوف */
+            tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
-            /* تصغير الخط قليلاً ليناسب صفحة واحدة بشكل طبيعي */
-            table { font-size: 13px !important; }
-            textarea { font-size: 13px !important; line-height: 1.4 !important; }
-            
-            /* منع انقسام الصف بين صفحتين */
-            tr { page-break-inside: avoid; }
+            /* إجبار التذييل على البقاء في نفس الصفحة */
+            .print-footer {
+                page-break-inside: avoid !important;
+                page-break-before: avoid !important;
+                margin-top: 5px !important;
+            }
         }
     </style>
 </head>
 <body class="p-2 md:p-6 text-gray-800">
 
-    <!-- لوحة التحكم -->
     <div class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg mb-4 no-print flex flex-wrap gap-2 justify-between items-center border-b-4 border-green-600">
-        <h1 class="text-xl font-bold text-green-700">قالب التحضير الذكي (النسخة المستقرة)</h1>
+        <h1 class="text-xl font-bold text-green-700">التحضير الذكي (طباعة الجوال المعتمدة)</h1>
         <div class="flex gap-2">
             <button onclick="openImportModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded shadow">
                 ✨ استيراد ذكي
             </button>
             <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow">
-                🖨️ حفظ كـ PDF
+                🖨️ طباعة (A4 أفقي)
             </button>
         </div>
     </div>
 
-    <!-- نافذة الاستيراد المنبثقة -->
     <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-2xl">
             <h2 class="text-lg font-bold mb-4 text-purple-700">استيراد كود JSON</h2>
@@ -87,97 +136,90 @@
         </div>
     </div>
 
-    <!-- ورقة العمل -->
-    <div class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg print:shadow-none print:p-0 print-overflow-visible">
+    <div class="max-w-7xl mx-auto bg-white p-2 md:p-4 rounded-lg shadow-lg print:shadow-none print:p-0" id="documentArea">
         
-        <!-- معلومات الدرس -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-sm md:text-base bg-gray-50 print:bg-transparent p-2 border print:border-none border-gray-200 rounded">
-            <div class="flex items-center gap-2">
-                <label class="font-bold whitespace-nowrap text-blue-800">المادة:</label>
-                <input type="text" id="h-subject" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold text-center" value="الرياضيات">
+        <div class="print-header-grid grid grid-cols-2 md:grid-cols-6 gap-2 mb-2 bg-gray-50 text-center font-bold items-center border border-gray-300 p-2 rounded print:rounded-none">
+            <div class="print-header-item flex flex-col justify-center">
+                <span class="text-xs text-gray-600 print:text-black">المادة</span>
+                <input type="text" id="h-subject" class="text-blue-800 font-bold text-center w-full" value="الرياضيات">
             </div>
-            <div class="flex items-center gap-2">
-                <label class="font-bold whitespace-nowrap text-blue-800">الصف:</label>
-                <input type="text" id="h-grade" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold text-center" value="الأول الأساسي">
+            <div class="print-header-item flex flex-col justify-center">
+                <span class="text-xs text-gray-600 print:text-black">الصف</span>
+                <input type="text" id="h-grade" class="text-blue-800 font-bold text-center w-full" value="الأول الأساسي">
             </div>
-            <div class="flex items-center gap-2">
-                <label class="font-bold whitespace-nowrap text-blue-800">عنوان الدرس:</label>
-                <input type="text" id="h-title" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold text-center">
+            <div class="print-header-item flex flex-col justify-center md:col-span-2">
+                <span class="text-xs text-gray-600 print:text-black">عنوان الدرس</span>
+                <input type="text" id="h-title" class="text-blue-800 font-bold text-center w-full" value="العد القفزي">
             </div>
-            <div class="flex items-center gap-2">
-                <label class="font-bold whitespace-nowrap text-blue-800">التاريخ:</label>
-                <input type="text" id="h-date" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold text-center" value="   /   / 2024م">
+            <div class="print-header-item flex flex-col justify-center">
+                <span class="text-xs text-gray-600 print:text-black">الحصة</span>
+                <input type="text" id="h-period" class="text-blue-800 font-bold text-center w-full" value="الأولى">
             </div>
-            <div class="flex items-center gap-2">
-                <label class="font-bold whitespace-nowrap text-blue-800">الحصة:</label>
-                <input type="text" id="h-period" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold text-center">
-            </div>
-            <div class="flex items-center gap-2 col-span-2 md:col-span-3">
-                <label class="font-bold whitespace-nowrap text-blue-800">التمهيد:</label>
-                <input type="text" id="h-intro" class="border-b border-gray-300 focus:border-green-500 w-full p-1 font-bold">
+            <div class="print-header-item flex flex-col justify-center">
+                <span class="text-xs text-gray-600 print:text-black">التاريخ</span>
+                <input type="text" id="h-date" class="text-blue-800 font-bold text-center w-full" value="   /   / 2024م">
             </div>
         </div>
 
-        <!-- الجدول -->
-        <div class="overflow-x-auto print-overflow-visible w-full mb-4">
-            <table class="w-full text-center border-collapse border border-gray-800 print-border min-w-[800px]" id="mainTable">
+        <div class="flex items-center gap-2 mb-2 p-1 border border-gray-300 print:border-black font-bold">
+            <span class="whitespace-nowrap">التمهيد:</span>
+            <input type="text" id="h-intro" class="w-full text-blue-800 font-bold" value="">
+        </div>
+
+        <div class="table-container overflow-x-auto w-full">
+            <table class="w-full text-center border-collapse border border-black min-w-[800px] print:min-w-full" id="mainTable">
                 <thead>
                     <tr class="bg-gray-100">
-                        <th class="border border-gray-800 p-2 print-border w-[8%]">العنصر</th>
-                        <th class="border border-gray-800 p-2 print-border w-[10%]">المجال/المستوى</th>
-                        <th class="border border-gray-800 p-2 print-border w-[16%]">الهدف</th>
-                        <th class="border border-gray-800 p-2 print-border w-[12%]">استراتيجيات التعلم</th>
-                        <th class="border border-gray-800 p-2 print-border w-[16%]">دور المعلم والوسائل</th>
-                        <th class="border border-gray-800 p-2 print-border w-[15%]">دور المتعلم</th>
-                        <th class="border border-gray-800 p-2 print-border w-[13%]">التقويم البنائي</th>
-                        <th class="border border-gray-800 p-2 print-border w-[10%]">الملخص السبوري</th>
+                        <th class="border border-black p-1 w-[8%]">العنصر</th>
+                        <th class="border border-black p-1 w-[10%]">المجال/المستوى</th>
+                        <th class="border border-black p-1 w-[15%]">الهدف</th>
+                        <th class="border border-black p-1 w-[13%]">استراتيجيات التعلم</th>
+                        <th class="border border-black p-1 w-[15%]">دور المعلم والوسائل</th>
+                        <th class="border border-black p-1 w-[15%]">دور المتعلم</th>
+                        <th class="border border-black p-1 w-[14%]">التقويم البنائي</th>
+                        <th class="border border-black p-1 w-[10%]">الملخص السبوري</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- الصفوف تضاف هنا ديناميكياً -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
 
-        <!-- زر إضافة صف -->
-        <div class="text-center mb-4 no-print">
-            <button onclick="addRow()" class="bg-blue-100 text-blue-700 border border-blue-300 px-4 py-1 rounded font-bold">
-                + إضافة صف يدوي
+        <div class="text-center mt-2 mb-4 no-print">
+            <button onclick="addRow()" class="bg-blue-100 text-blue-700 border border-blue-300 px-4 py-1 rounded font-bold text-sm">
+                + إضافة صف 
             </button>
         </div>
 
-        <!-- التذييل -->
-        <div class="border border-gray-800 print-border p-2 bg-gray-50">
-            <div class="flex items-start gap-2 mb-2">
-                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center shrink-0">O</span>
-                <label class="font-bold shrink-0 mt-1">التقويم الختامي:</label>
-                <textarea id="f-eval" class="bg-transparent border-b border-gray-400 focus:border-green-500 w-full p-1" oninput="autoResize(this)"></textarea>
+        <div class="print-footer">
+            <div class="border border-black p-2 bg-gray-50 print:bg-white text-sm">
+                <div class="flex items-start gap-2 mb-1">
+                    <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-5 h-5 flex items-center justify-center shrink-0">O</span>
+                    <label class="font-bold shrink-0">التقويم الختامي:</label>
+                    <textarea id="f-eval" class="w-full text-blue-800 font-bold leading-tight" oninput="autoResize(this)"></textarea>
+                </div>
+                <div class="flex items-start gap-2 mb-1">
+                    <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-5 h-5 flex items-center justify-center shrink-0">O</span>
+                    <label class="font-bold shrink-0">إغلاق الدرس:</label>
+                    <textarea id="f-close" class="w-full text-blue-800 font-bold leading-tight" oninput="autoResize(this)"></textarea>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-5 h-5 flex items-center justify-center shrink-0">O</span>
+                    <label class="font-bold shrink-0">الواجب المنزلي:</label>
+                    <textarea id="f-hw" class="w-full text-blue-800 font-bold leading-tight" oninput="autoResize(this)"></textarea>
+                </div>
             </div>
-            <div class="flex items-start gap-2 mb-2">
-                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center shrink-0">O</span>
-                <label class="font-bold shrink-0 mt-1">إغلاق الدرس:</label>
-                <textarea id="f-close" class="bg-transparent border-b border-gray-400 focus:border-green-500 w-full p-1" oninput="autoResize(this)"></textarea>
-            </div>
-            <div class="flex items-start gap-2">
-                <span class="font-bold text-red-600 border-2 border-red-600 rounded-full w-6 h-6 flex items-center justify-center shrink-0">O</span>
-                <label class="font-bold shrink-0 mt-1">الواجب المنزلي:</label>
-                <textarea id="f-hw" class="bg-transparent border-b border-gray-400 focus:border-green-500 w-full p-1" oninput="autoResize(this)"></textarea>
-            </div>
-        </div>
 
-        <!-- التوقيعات -->
-        <div class="grid grid-cols-3 gap-4 mt-8 text-center font-bold text-sm">
-            <div>
-                <p>اعتماد متابعة الإشراف الإداري</p>
-                <div class="border-b-2 border-dotted border-gray-400 mx-4 mt-8"></div>
-            </div>
-            <div>
-                <p>اعتماد متابعة الإشراف التربوي</p>
-                <div class="border-b-2 border-dotted border-gray-400 mx-4 mt-8"></div>
-            </div>
-            <div>
-                <p>اعتماد متابعة إدارة المدرسة</p>
-                <div class="border-b-2 border-dotted border-gray-400 mx-4 mt-8"></div>
+            <div class="grid grid-cols-3 gap-4 mt-6 text-center font-bold text-sm">
+                <div>
+                    <p>اعتماد متابعة الإشراف الإداري</p>
+                </div>
+                <div>
+                    <p>اعتماد متابعة الإشراف التربوي</p>
+                </div>
+                <div>
+                    <p>اعتماد متابعة إدارة المدرسة</p>
+                </div>
             </div>
         </div>
 
@@ -204,26 +246,26 @@
             const tbody = document.getElementById('tableBody');
             const tr = document.createElement('tr');
             
-            const defaultData = { element: 'مقدمة الدرس', level: '', goal: '', strategy: '', teacherRole: '', studentRole: '', eval: '' };
+            const defaultData = { element: '', level: '', goal: '', strategy: '', teacherRole: '', studentRole: '', eval: '' };
             const rowData = data || defaultData;
 
             let html = `
-                <td class="border border-gray-800 p-1 print-border relative group">
+                <td class="border border-black p-1 relative group">
                     <textarea class="w-full text-center font-bold" oninput="autoResize(this)">${rowData.element}</textarea>
                     <button onclick="removeRow(this)" class="absolute top-0 right-0 bg-red-500 text-white text-xs w-5 h-5 rounded-full hidden group-hover:block no-print">×</button>
                 </td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center font-bold" oninput="autoResize(this)">${rowData.level}</textarea></td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)">${rowData.goal}</textarea></td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">${rowData.strategy}</textarea></td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)">${rowData.teacherRole}</textarea></td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full" oninput="autoResize(this)">${rowData.studentRole}</textarea></td>
-                <td class="border border-gray-800 p-1 print-border"><textarea class="w-full text-center" oninput="autoResize(this)">${rowData.eval}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full text-center font-bold" oninput="autoResize(this)">${rowData.level}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full" oninput="autoResize(this)">${rowData.goal}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full text-center" oninput="autoResize(this)">${rowData.strategy}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full" oninput="autoResize(this)">${rowData.teacherRole}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full" oninput="autoResize(this)">${rowData.studentRole}</textarea></td>
+                <td class="border border-black p-1"><textarea class="w-full text-center" oninput="autoResize(this)">${rowData.eval}</textarea></td>
             `;
 
             if (rowCount === 0) {
                 const boardContent = data && data.board ? data.board : "";
-                html += `<td id="boardCell" class="border border-gray-800 p-1 print-border align-top" rowspan="1">
-                            <textarea id="f-board" class="w-full h-full min-h-[150px] text-center font-bold text-red-600" oninput="autoResize(this)">${boardContent}</textarea>
+                html += `<td id="boardCell" class="border border-black p-1 align-top" rowspan="1">
+                            <textarea id="f-board" class="w-full h-full min-h-[120px] text-center font-bold text-red-600" oninput="autoResize(this)">${boardContent}</textarea>
                          </td>`;
             }
 
@@ -265,7 +307,6 @@
             if(!rawText.trim()) return alert('الرجاء لصق الكود أولاً.');
 
             try {
-                // التنظيف الذكي للكود
                 let cleanJson = rawText;
                 const firstBrace = cleanJson.indexOf('{');
                 const lastBrace = cleanJson.lastIndexOf('}');
@@ -275,16 +316,14 @@
 
                 const data = JSON.parse(cleanJson);
 
-                // تعبئة الترويسة
                 if(data.header) {
-                    document.getElementById('h-subject').value = data.header.subject || 'الرياضيات';
-                    document.getElementById('h-grade').value = data.header.grade || 'الأول الأساسي';
+                    document.getElementById('h-subject').value = data.header.subject || '';
+                    document.getElementById('h-grade').value = data.header.grade || '';
                     document.getElementById('h-title').value = data.header.title || '';
                     document.getElementById('h-period').value = data.header.period || '';
                     document.getElementById('h-intro').value = data.header.intro || '';
                 }
 
-                // تعبئة الجدول
                 if(data.rows && Array.isArray(data.rows)) {
                     document.getElementById('tableBody').innerHTML = ''; 
                     rowCount = 0;
@@ -294,7 +333,6 @@
                     });
                 }
 
-                // تعبئة التذييل
                 if(data.footer) {
                     document.getElementById('f-eval').value = data.footer.eval || '';
                     document.getElementById('f-close').value = data.footer.close || '';
@@ -309,21 +347,14 @@
             }
         }
 
-        // تهيئة الجدول بصف فارغ عند البداية
+        // تهيئة الجدول
         window.onload = function() {
             addRow({
-                element: "مقدمة الدرس", level: "", goal: "انسخ الكود من المحادثة واضغط استيراد ذكي...", strategy: "", teacherRole: "", studentRole: "", eval: ""
+                element: "مقدمة", level: "", goal: "بانتظار الاستيراد...", strategy: "", teacherRole: "", studentRole: "", eval: ""
             });
         };
     </script>
 </body>
 </html>
-```eof
 
-**ملاحظة هامة جداً للطباعة من جوالك (كما يظهر في صورتك الثانية):**
-في الصورة التي أرسلتها، خيار **Paper size** كان مضبوطاً على **Letter**. متصفح الجوال أحياناً يعاند الأكواد البرمجية. لكي تطبع بشكل مثالي:
-1. عند الضغط على حفظ كـ PDF.
-2. تأكد أن تضغط على السهم الصغير وتختار الورق **ISO A4**.
-3. تأكد أن اتجاه الورقة (Orientation) مضبوط على **أفقي (Landscape)**.
-
-جرب الأداة الآن، متأكد 100% أنها ستعطيك نفس المظهر النظيف الأول، مع الاستفادة من ميزة الاستيراد السريع!
+```
