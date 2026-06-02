@@ -3,49 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحضير الأرض الطيبة - متوافق مع الجوال</title>
+    <title>تحضير الأرض الطيبة - 10 أعمدة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
         
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #1f2937; /* خلفية داكنة مريحة للعين في الجوال */
+            background-color: #1f2937;
             margin: 0;
             padding: 10px;
         }
 
-        #pages-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        #pages-container { display: flex; flex-direction: column; gap: 20px; }
+        .mobile-hint { text-align: center; color: #fbbf24; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
 
-        /* رسالة تلميح للجوال */
-        .mobile-hint {
-            text-align: center;
-            color: #fbbf24;
-            font-size: 14px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        /* ------------------------------------------------ */
-        /* 1. وضع الشاشة (الجوال) - مريح، كبير، قابل للسحب */
-        /* ------------------------------------------------ */
+        /* وضع الشاشة للجوال */
         @media screen {
             .page-wrapper {
                 width: 100%;
-                overflow-x: auto; /* السماح بالسحب يميناً ويساراً */
+                overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 background-color: #374151;
                 border-radius: 12px;
                 padding: 10px;
             }
-
             .a4-sheet {
                 width: 100%;
-                min-width: 1100px; /* الحفاظ على شكل الجدول بدون تكسير */
+                min-width: 1250px; /* عرض كبير لاستيعاب 10 أعمدة براحة */
                 background-color: white;
                 padding: 15px;
                 border-radius: 8px;
@@ -53,14 +38,12 @@
                 flex-direction: column;
                 position: relative;
             }
-
-            /* تمييز حقول الإدخال لتسهيل النقر في الجوال */
             textarea, input {
-                background-color: #eff6ff !important; /* لون أزرق فاتح */
+                background-color: #eff6ff !important;
                 border: 1px dashed #60a5fa !important;
                 border-radius: 4px;
                 padding: 8px !important;
-                font-size: 16px !important; /* يمنع الآيفون/الأندرويد من عمل زووم */
+                font-size: 16px !important; /* يمنع الزووم في الجوال */
                 color: #1e3a8a;
                 font-weight: bold;
                 width: 100%;
@@ -69,54 +52,41 @@
                 resize: none;
                 transition: all 0.2s;
             }
-
             textarea:focus, input:focus {
                 background-color: #dbeafe !important;
                 border-color: #2563eb !important;
             }
         }
 
-        /* ------------------------------------------------ */
-        /* 2. وضع الطباعة - يتحول لـ PDF صلب بمقاسات المدرسة */
-        /* ------------------------------------------------ */
+        /* وضع الطباعة - مرن لملء الورقة */
         @media print {
-            @page { size: A4 landscape !important; margin: 0 !important; }
-            body { 
-                background: white !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            @page { size: landscape; margin: 5mm; }
+            body { background: white !important; padding: 0 !important; margin: 0 !important; }
             .mobile-hint, .no-print { display: none !important; }
             .page-wrapper { overflow: visible !important; padding: 0 !important; background: transparent !important; }
             #pages-container { gap: 0; }
             
             .a4-sheet { 
-                width: 297mm !important;
-                height: 209mm !important; /* مقاس A4 دقيق */
-                min-width: auto !important;
+                width: 100% !important; /* التمدد لملء الورقة بالكامل */
+                max-width: 100% !important;
+                min-width: 100% !important;
                 margin: 0 !important;
-                padding: 8mm !important;
+                padding: 0 !important;
                 border-radius: 0 !important;
                 page-break-after: always !important;
                 page-break-inside: avoid !important;
-                overflow: hidden !important; /* يمنع أي نص زائد من تخريب الصفحة */
             }
 
-            /* إخفاء ألوان الحقول لتصبح كأنها ورقة مطبوعة */
             textarea, input {
                 background-color: transparent !important;
                 border: none !important;
                 padding: 0 !important;
-                font-size: 13px !important; /* تصغير الخط ليناسب الورقة */
+                font-size: 13px !important;
                 color: #000 !important;
             }
         }
 
-        /* ------------------------------------------------ */
-        /* الهيكل الأساسي للجدول (مشترك بين الشاشة والطباعة) */
-        /* ------------------------------------------------ */
+        /* تنسيق الجدول */
         .header-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr 1.5fr 1fr;
@@ -126,12 +96,7 @@
             font-weight: bold;
             background-color: #f9fafb;
         }
-        .header-cell {
-            border-left: 1.5px solid black;
-            display: flex;
-            flex-direction: column;
-            padding: 4px;
-        }
+        .header-cell { border-left: 1.5px solid black; display: flex; flex-direction: column; padding: 4px; }
         .header-cell:last-child { border-left: none; }
         .header-title { color: #111827; font-size: 12px; margin-bottom: 4px; }
         
@@ -141,80 +106,44 @@
             display: flex;
             align-items: center;
             font-weight: bold;
-            margin-bottom: 4mm;
+            margin-bottom: 2mm;
             background-color: white;
         }
 
-        .table-wrapper {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 4mm;
-        }
-        table {
-            width: 100%;
-            height: 100%;
-            border-collapse: collapse;
-            border: 1.5px solid black;
-            table-layout: fixed;
-        }
-        th, td {
-            border: 1px solid black;
-            text-align: center;
-            vertical-align: top;
-            padding: 4px;
-        }
-        th { background-color: #f3f4f6; font-size: 13px; font-weight: bold; color: #000; }
+        .table-wrapper { flex-grow: 1; display: flex; flex-direction: column; margin-bottom: 2mm; }
+        table { width: 100%; height: 100%; border-collapse: collapse; border: 1.5px solid black; table-layout: fixed; }
+        th, td { border: 1px solid black; text-align: center; vertical-align: top; padding: 4px; }
+        th { background-color: #f3f4f6; font-size: 12px; font-weight: bold; color: #000; }
         
-        th:nth-child(1) { width: 8%; } 
-        th:nth-child(2) { width: 10%; }
-        th:nth-child(3) { width: 15%; }
-        th:nth-child(4) { width: 12%; }
-        th:nth-child(5) { width: 16%; }
-        th:nth-child(6) { width: 15%; }
-        th:nth-child(7) { width: 14%; }
-        th:nth-child(8) { width: 10%; }
+        /* تقسيم الـ 10 أعمدة */
+        th:nth-child(1) { width: 7%; }  /* العنصر */
+        th:nth-child(2) { width: 15%; } /* الهدف */
+        th:nth-child(3) { width: 6%; }  /* المجال */
+        th:nth-child(4) { width: 6%; }  /* المستوى */
+        th:nth-child(5) { width: 11%; } /* الاستراتيجيات */
+        th:nth-child(6) { width: 12%; } /* الوسائل */
+        th:nth-child(7) { width: 10%; } /* المعلم */
+        th:nth-child(8) { width: 10%; } /* المتعلم */
+        th:nth-child(9) { width: 13%; } /* التقويم */
+        th:nth-child(10){ width: 10%; } /* الملخص */
 
-        .footer-section {
-            border: 1.5px solid black;
-            padding: 6px;
-            font-weight: bold;
-            background-color: #f9fafb;
-        }
+        .footer-section { border: 1.5px solid black; padding: 6px; font-weight: bold; background-color: #f9fafb; }
         .footer-row { display: flex; align-items: flex-start; margin-bottom: 4px; }
         .footer-label { white-space: nowrap; margin-left: 5px; color: #000; font-size: 13px; }
         
-        .signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 4mm;
-            padding: 0 10mm;
-            font-weight: bold;
-            font-size: 13px;
-            color: #000;
-        }
+        .signatures { display: flex; justify-content: space-between; margin-top: 2mm; padding: 0 10mm; font-weight: bold; font-size: 13px; color: #000; }
     </style>
 </head>
 <body>
 
-    <div class="mobile-hint no-print">
-        👈 اسحب الجدول لليمين واليسار لرؤية باقي الخانات 👉
-    </div>
+    <div class="mobile-hint no-print">👈 اسحب الجدول لليمين واليسار 👉</div>
 
-    <!-- أزرار التحكم العائمة -->
     <div class="fixed bottom-4 right-4 flex flex-col gap-2 z-50 no-print">
-        <button onclick="addNewPage()" class="bg-blue-600 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white hover:bg-blue-700">
-            📄 + صفحة
-        </button>
-        <button onclick="openImportModal()" class="bg-purple-700 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white hover:bg-purple-800">
-            ✨ استيراد
-        </button>
-        <button onclick="window.print()" class="bg-green-600 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white hover:bg-green-700">
-            🖨️ طباعة
-        </button>
+        <button onclick="addNewPage()" class="bg-blue-600 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white">📄 + صفحة</button>
+        <button onclick="openImportModal()" class="bg-purple-700 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white">✨ استيراد</button>
+        <button onclick="window.print()" class="bg-green-600 text-white font-bold py-3 px-5 rounded-full shadow-lg border-2 border-white">🖨️ طباعة</button>
     </div>
 
-    <!-- نافذة الاستيراد -->
     <div id="importModal" class="fixed inset-0 bg-black bg-opacity-75 z-[100] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl p-6 w-full max-w-2xl shadow-2xl">
             <h2 class="text-xl font-bold mb-4 text-purple-700">استيراد كود التحضير</h2>
@@ -226,99 +155,57 @@
         </div>
     </div>
 
-    <!-- حاوية جميع الصفحات -->
     <div id="pages-container"></div>
 
-    <!-- القالب الأساسي للصفحة -->
     <template id="page-template">
         <div class="page-wrapper">
             <div class="a4-sheet">
                 
-                <!-- أزرار تحكم داخل الصفحة -->
                 <div class="absolute top-2 left-2 flex gap-2 no-print z-10">
-                    <button onclick="addRow(this)" class="bg-indigo-100 text-indigo-700 border border-indigo-300 px-3 py-1 rounded text-xs font-bold">
-                        + إضافة صف للجدول
-                    </button>
-                    <button onclick="deletePage(this)" class="bg-red-100 text-red-700 border border-red-300 px-3 py-1 rounded text-xs font-bold">
-                        حذف هذه الصفحة
-                    </button>
+                    <button onclick="addRow(this)" class="bg-indigo-100 text-indigo-700 border border-indigo-300 px-3 py-1 rounded text-xs font-bold">+ إضافة صف</button>
+                    <button onclick="deletePage(this)" class="bg-red-100 text-red-700 border border-red-300 px-3 py-1 rounded text-xs font-bold">حذف الصفحة</button>
                 </div>
 
-                <!-- الترويسة -->
                 <div class="header-grid">
-                    <div class="header-cell">
-                        <span class="header-title">المادة</span>
-                        <input type="text" class="h-subject text-center" value="الرياضيات">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">الصف</span>
-                        <input type="text" class="h-grade text-center" value="الأول الأساسي">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">عنوان الدرس</span>
-                        <input type="text" class="h-title text-center">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">الحصة</span>
-                        <input type="text" class="h-period text-center">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">التاريخ</span>
-                        <input type="text" class="h-date text-center">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">ملاحظات</span>
-                        <input type="text" class="h-notes text-center">
-                    </div>
-                    <div class="header-cell">
-                        <span class="header-title">الزمن</span>
-                        <input type="text" class="h-time text-center" value="45 دقيقة">
-                    </div>
+                    <div class="header-cell"><span class="header-title">المادة</span><input type="text" class="h-subject text-center" value="الرياضيات"></div>
+                    <div class="header-cell"><span class="header-title">الصف</span><input type="text" class="h-grade text-center" value="الأول الأساسي"></div>
+                    <div class="header-cell"><span class="header-title">عنوان الدرس</span><input type="text" class="h-title text-center"></div>
+                    <div class="header-cell"><span class="header-title">الحصة</span><input type="text" class="h-period text-center"></div>
+                    <div class="header-cell"><span class="header-title">التاريخ</span><input type="text" class="h-date text-center"></div>
+                    <div class="header-cell"><span class="header-title">ملاحظات</span><input type="text" class="h-notes text-center"></div>
+                    <div class="header-cell"><span class="header-title">الزمن</span><input type="text" class="h-time text-center" value="45 دقيقة"></div>
                 </div>
                 
                 <div class="intro-row">
-                    <span class="text-gray-700 whitespace-nowrap ml-2">التمهيد:</span>
-                    <input type="text" class="h-intro w-full">
+                    <span class="text-gray-700 whitespace-nowrap ml-2">التمهيد:</span><input type="text" class="h-intro w-full">
                 </div>
 
-                <!-- الجدول الرئيسي -->
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>العنصر</th>
-                                <th>المجال المستوى</th>
                                 <th>الهدف</th>
-                                <th>استراتيجيات<br>التعلم</th>
-                                <th>الوسائل ومصادر التعلم<br>دور المعلم</th>
+                                <th>المجال</th>
+                                <th>المستوى</th>
+                                <th>استراتيجيات التعلم</th>
+                                <th>الوسائل ومصادر التعلم</th>
+                                <th>دور المعلم</th>
                                 <th>دور المتعلم</th>
                                 <th>التقويم البنائي</th>
                                 <th>الملخص السبوري</th>
                             </tr>
                         </thead>
-                        <tbody class="table-body">
-                            <!-- الصفوف -->
-                        </tbody>
+                        <tbody class="table-body"></tbody>
                     </table>
                 </div>
 
-                <!-- التذييل -->
                 <div class="footer-section">
-                    <div class="footer-row">
-                        <span class="footer-label">التقويم الختامي:</span>
-                        <textarea class="f-eval" rows="1" oninput="autoResize(this)">نشاط .</textarea>
-                    </div>
-                    <div class="footer-row">
-                        <span class="footer-label">إغلاق الدرس:</span>
-                        <textarea class="f-close" rows="2" oninput="autoResize(this)">توجيه المتعلمين نحو تدوين الملخص السبوري في دفاترهم - التأكيد على الأفكار الرئيسية - إتاحة الفرص للاستفسار تدوين درجات المشاركة وشكر المتعلمين على تفاعلهم</textarea>
-                    </div>
-                    <div class="footer-row">
-                        <span class="footer-label">الواجب المنزلي:</span>
-                        <textarea class="f-hw" rows="1" oninput="autoResize(this)">حل أسئلة اختبر نفسك في الكتاب المدرسي س</textarea>
-                    </div>
+                    <div class="footer-row"><span class="footer-label">التقويم الختامي:</span><textarea class="f-eval" rows="1" oninput="autoResize(this)">نشاط .</textarea></div>
+                    <div class="footer-row"><span class="footer-label">إغلاق الدرس:</span><textarea class="f-close" rows="2" oninput="autoResize(this)">توجيه المتعلمين نحو تدوين الملخص السبوري - التأكيد على الأفكار الرئيسية - إتاحة الفرص للاستفسار</textarea></div>
+                    <div class="footer-row"><span class="footer-label">الواجب المنزلي:</span><textarea class="f-hw" rows="1" oninput="autoResize(this)">حل أسئلة اختبر نفسك في الكتاب المدرسي س</textarea></div>
                 </div>
 
-                <!-- التوقيعات -->
                 <div class="signatures">
                     <div>اعتماد متابعة الإشراف الإداري</div>
                     <div>اعتماد متابعة الإشراف التربوي</div>
@@ -331,17 +218,13 @@
     <script>
         let pageCount = 0;
 
-        function autoResize(element) {
-            element.style.height = 'auto';
-            element.style.height = element.scrollHeight + 'px';
-        }
+        function autoResize(element) { element.style.height = 'auto'; element.style.height = element.scrollHeight + 'px'; }
 
         function addNewPage() {
             pageCount++;
             const template = document.getElementById('page-template');
             const clone = template.content.cloneNode(true);
             const newWrapper = clone.querySelector('.page-wrapper');
-            newWrapper.id = 'page-' + pageCount;
             
             const tbody = newWrapper.querySelector('.table-body');
             appendRowToTbody(tbody, "مقدمة الدرس", true);
@@ -353,70 +236,49 @@
         }
 
         function deletePage(btn) {
-            if (document.querySelectorAll('.page-wrapper').length <= 1) {
-                alert('لا يمكن حذف الصفحة الوحيدة المتبقية!');
-                return;
-            }
-            if (confirm('هل أنت متأكد من حذف هذه الصفحة؟')) {
-                btn.closest('.page-wrapper').remove();
-            }
+            if (document.querySelectorAll('.page-wrapper').length <= 1) return alert('لا يمكن حذف الصفحة الوحيدة المتبقية!');
+            if (confirm('هل أنت متأكد من حذف هذه الصفحة؟')) btn.closest('.page-wrapper').remove();
         }
 
-        function addRow(btn) {
-            const tbody = btn.closest('.page-wrapper').querySelector('.table-body');
-            appendRowToTbody(tbody, "", false);
-        }
+        function addRow(btn) { appendRowToTbody(btn.closest('.page-wrapper').querySelector('.table-body'), "", false); }
 
         function appendRowToTbody(tbody, elementName = "", isFirstRow = false, data = {}) {
             const tr = document.createElement('tr');
-            
             let html = `
                 <td class="relative group">
                     <textarea class="text-center h-full w-full" style="min-height: 50px;" oninput="autoResize(this)">${data.element || elementName}</textarea>
                     <button onclick="removeRow(this)" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-xs rounded-full hidden group-hover:block no-print">×</button>
                 </td>
-                <td><textarea class="text-center h-full w-full" oninput="autoResize(this)">${data.level || ''}</textarea></td>
                 <td><textarea class="h-full w-full" oninput="autoResize(this)">${data.goal || ''}</textarea></td>
+                <td><textarea class="text-center h-full w-full" oninput="autoResize(this)">${data.domain || ''}</textarea></td>
+                <td><textarea class="text-center h-full w-full" oninput="autoResize(this)">${data.level || ''}</textarea></td>
                 <td><textarea class="text-center h-full w-full" oninput="autoResize(this)">${data.strategy || ''}</textarea></td>
+                <td><textarea class="h-full w-full" oninput="autoResize(this)">${data.tools || ''}</textarea></td>
                 <td><textarea class="h-full w-full" oninput="autoResize(this)">${data.teacherRole || ''}</textarea></td>
                 <td><textarea class="h-full w-full" oninput="autoResize(this)">${data.studentRole || ''}</textarea></td>
                 <td><textarea class="text-center h-full w-full" oninput="autoResize(this)">${data.eval || ''}</textarea></td>
             `;
 
-            if (isFirstRow) {
-                html += `<td rowspan="1" class="board-cell align-top">
-                            <textarea class="f-board text-center !text-red-600 h-full w-full min-h-[120px]" oninput="autoResize(this)">${data.board || ''}</textarea>
-                         </td>`;
-            }
-
-            tr.innerHTML = html;
-            tbody.appendChild(tr);
-            updateRowSpan(tbody);
+            if (isFirstRow) html += `<td rowspan="1" class="board-cell align-top"><textarea class="f-board text-center !text-red-600 h-full w-full min-h-[120px]" oninput="autoResize(this)">${data.board || ''}</textarea></td>`;
+            tr.innerHTML = html; tbody.appendChild(tr); updateRowSpan(tbody);
         }
 
         function removeRow(btn) {
-            const tr = btn.closest('tr');
-            const tbody = tr.closest('tbody');
-            if (tbody.rows.length <= 1) return alert('يجب ترك صف واحد على الأقل.');
-            
+            const tr = btn.closest('tr'); const tbody = tr.closest('tbody');
+            if (tbody.rows.length <= 1) return alert('يجب ترك صف واحد.');
             if (tr.rowIndex === 1 && tr.nextElementSibling) {
                 const boardCell = tr.querySelector('.board-cell');
                 if (boardCell) tr.nextElementSibling.appendChild(boardCell);
             }
-            tr.remove();
-            updateRowSpan(tbody);
+            tr.remove(); updateRowSpan(tbody);
         }
 
         function updateRowSpan(tbody) {
-            const rowCount = tbody.rows.length;
             const boardCell = tbody.querySelector('.board-cell');
-            if (boardCell) boardCell.setAttribute('rowspan', rowCount);
+            if (boardCell) boardCell.setAttribute('rowspan', tbody.rows.length);
         }
 
-        function openImportModal() { 
-            document.getElementById('importModal').classList.remove('hidden'); 
-            document.getElementById('jsonInput').value = '';
-        }
+        function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); document.getElementById('jsonInput').value = ''; }
         function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
 
         function processJSON() {
@@ -430,7 +292,6 @@
                 if (firstBrace !== -1 && lastBrace !== -1) cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
                 
                 const data = JSON.parse(cleanJson);
-                
                 document.getElementById('pages-container').innerHTML = '';
                 const sheet = addNewPage();
                 
@@ -448,10 +309,7 @@
                 tbody.innerHTML = ''; 
                 
                 if(data.rows && Array.isArray(data.rows)) {
-                    data.rows.forEach((r, index) => {
-                        if(index === 0) r.board = data.board;
-                        appendRowToTbody(tbody, "", index === 0, r);
-                    });
+                    data.rows.forEach((r, index) => { if(index === 0) r.board = data.board; appendRowToTbody(tbody, "", index === 0, r); });
                 }
                 
                 if(data.footer) {
@@ -459,24 +317,12 @@
                     if(data.footer.close) sheet.querySelector('.f-close').value = data.footer.close;
                     if(data.footer.hw) sheet.querySelector('.f-hw').value = data.footer.hw;
                 }
-                
                 closeImportModal();
-                
-                setTimeout(() => {
-                    document.querySelectorAll('textarea').forEach(ta => autoResize(ta));
-                }, 100);
-
-            } catch (e) {
-                alert('يوجد خطأ في كود النسخ. تأكد أنك نسخت الرد بالكامل.');
-            }
+                setTimeout(() => { document.querySelectorAll('textarea').forEach(ta => autoResize(ta)); }, 100);
+            } catch (e) { alert('يوجد خطأ في كود النسخ. تأكد أنك نسخت الرد بالكامل.'); }
         }
 
-        window.onload = function() {
-            addNewPage();
-        };
+        window.onload = function() { addNewPage(); };
     </script>
 </body>
 </html>
-```eof
-
-افتح هذا الرابط من جوالك الآن. ستلاحظ أنك تستطيع التمرير براحة، والكتابة واضحة جداً. وعندما تنتهي وتضغط **طباعة**، سيعود كل شيء ليتطابق مع نموذج مدرستك الأصلي[span_1](start_span)[span_1](end_span). جربها وبانتظار رأيك.
