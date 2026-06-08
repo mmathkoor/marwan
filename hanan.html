@@ -1,398 +1,476 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-<meta charset="UTF-8"> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marwan Mathkoor - Executive CV</title>
-<style> 
-@page { size: A4; margin: 0; } 
-* { margin: 0; padding: 0; box-sizing: border-box; }  
-body {   
-  font-family: Arial, sans-serif;   
-  font-size: 9pt;   
-  color: #111;   
-  background: #fff;   
-  width: 210mm; 
-  margin: 0 auto;
-}  
 
-/* ─── HEADER ─── */ 
-.hdr {   
-  background: #0c2461;   
-  color: #fff;   
-  padding: 15px 22px 13px 22px; 
-} 
-.hdr-top { width: 100%; border-collapse: collapse; } 
-.hdr h1 {   
-  font-size: 21pt;   
-  font-weight: 900;   
-  letter-spacing: 1.5px;   
-  text-transform: uppercase;   
-  line-height: 1; 
-} 
-.hdr-badge {   
-  background: #f5c518;   
-  color: #0c2461;   
-  font-size: 7pt;   
-  font-weight: 900;   
-  padding: 4px 8px;   
-  border-radius: 3px;   
-  text-align: center;   
-  line-height: 1.3;   
-  white-space: nowrap; 
-} 
-.hdr-title {   
-  font-size: 9pt;   
-  color: #93bbf7;   
-  font-weight: 700;   
-  margin-top: 4px; 
-} 
-.hdr-contacts {   
-  margin-top: 8px;   
-  padding-top: 7px;   
-  border-top: 1px solid rgba(255,255,255,0.18);   
-  font-size: 7.8pt;   
-  color: #c0d6f5; 
-} 
-.hdr-contacts td { padding-right: 10px; } 
-.hdr-contacts a { color: #93bbf7; text-decoration: none; }  
+<!-- استدعاء مكتبة تحويل الموقع إلى PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-/* ─── COLUMNS ─── */ 
-.cols { width: 100%; border-collapse: collapse; } 
-.col-left {   
-  width: 65mm;   
-  vertical-align: top;   
-  padding: 12px 11px 12px 15px;   
-  background: #f1f5fb;   
-  border-right: 2px solid #d0dff5; 
-} 
-.col-right {   
-  vertical-align: top;   
-  padding: 12px 18px 12px 15px; 
-}  
+<style>
+/* ─── إعدادات الطباعة الأساسية ─── */
+@page { size: A4; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ─── SECTION TITLE ─── */ 
-.stitle {   
-  font-size: 8pt;   
-  font-weight: 900;   
-  color: #0c2461;   
-  text-transform: uppercase;   
-  letter-spacing: 1.2px;   
-  border-bottom: 2px solid #0c2461;   
-  padding-bottom: 3px;   
-  margin-bottom: 7px;   
-  margin-top: 12px; 
-} 
-.stitle:first-child { margin-top: 0; }  
+body {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  color: #111;
+  background: #e2e8f0; /* لون خلفية الصفحة خارج السيرة */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+}
 
-/* ─── SUMMARY ─── */ 
-.summary {   
-  border-left: 4px solid #0c2461;   
-  background: #eef3ff;   
-  padding: 8px 10px;   
-  font-size: 8.6pt;   
-  line-height: 1.5;   
-  color: #1a1a1a; 
+/* ─── زر التنزيل ─── */
+.download-btn {
+  background: #0c2461;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 11pt;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+.download-btn:active { transform: scale(0.95); }
+
+/* ─── حاوية السيرة الذاتية (A4) ─── */
+#cv-container {
+  width: 210mm;
+  min-height: 297mm;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── HEADER ─── */
+.hdr {
+  background: #0c2461;
+  color: #fff;
+  padding: 15px 22px 13px 22px;
+}
+.hdr-top { width: 100%; border-collapse: collapse; }
+.hdr h1 {
+  font-size: 21pt;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.hdr-badge {
+  background: #f5c518;
+  color: #0c2461;
+  font-size: 7pt;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 3px;
+  text-align: center;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.hdr-title {
+  font-size: 9pt;
+  color: #93bbf7;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.hdr-contacts {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+  font-size: 7.8pt;
+  color: #c0d6f5;
+}
+.hdr-contacts td { padding-right: 10px; }
+.hdr-contacts a { color: #93bbf7; text-decoration: none; }
+
+/* ─── COLUMNS ─── */
+.cols { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.col-left {
+  width: 65mm;
+  vertical-align: top;
+  padding: 12px 11px 12px 15px;
+  background: #f1f5fb;
+  border-right: 2px solid #d0dff5;
+}
+.col-right {
+  vertical-align: top;
+  padding: 12px 18px 12px 15px;
+}
+
+/* ─── SECTION TITLE ─── */
+.stitle {
+  font-size: 8pt;
+  font-weight: 900;
+  color: #0c2461;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  border-bottom: 2px solid #0c2461;
+  padding-bottom: 3px;
+  margin-bottom: 7px;
+  margin-top: 12px;
+}
+.stitle:first-child { margin-top: 0; }
+
+/* ─── SUMMARY ─── */
+.summary {
+  border-left: 4px solid #0c2461;
+  background: #eef3ff;
+  padding: 8px 10px;
+  font-size: 8.6pt;
+  line-height: 1.5;
+  color: #1a1a1a;
   text-align: justify;
-} 
-.summary b { color: #0c2461; }  
+}
+.summary b { color: #0c2461; }
 
-/* ─── JOB ─── */ 
-.job { margin-bottom: 9px; } 
-.job-head { width: 100%; border-collapse: collapse; } 
-.job-title { font-size: 9.5pt; font-weight: 900; color: #0b1e3d; } 
-.job-date { font-size: 7.6pt; color: #777; text-align: right; white-space: nowrap; font-style: italic; } 
-.job-co { font-size: 8.5pt; font-weight: 800; color: #0c2461; margin: 1px 0 3px; } 
-.job-tag {   
-  display: inline-block;   
-  font-size: 6.8pt; font-weight: 800;   
-  color: #0c2461; background: #dde8ff;   
-  padding: 1px 5px; border-radius: 2px;   
-  margin-bottom: 3px; 
-} 
-.job ul { padding-left: 12px; margin: 0; } 
-.job ul li { font-size: 8.4pt; color: #222; margin-bottom: 2px; line-height: 1.36; text-align: justify;} 
-.job ul li::marker { color: #0c2461; } 
-.sep { border: none; border-top: 1px dashed #ccd8f0; margin: 8px 0; }  
+/* ─── JOB ─── */
+.job { margin-bottom: 10px; page-break-inside: avoid; }
+.job-head { width: 100%; border-collapse: collapse; }
+.job-title { font-size: 9.5pt; font-weight: 900; color: #0b1e3d; }
+.job-date { font-size: 7.6pt; color: #777; text-align: right; white-space: nowrap; font-style: italic; }
+.job-co { font-size: 8.5pt; font-weight: 800; color: #0c2461; margin: 1px 0 3px; }
+.job-tag {
+  display: inline-block;
+  font-size: 6.8pt; font-weight: 800;
+  color: #0c2461; background: #dde8ff;
+  padding: 1px 5px; border-radius: 2px;
+  margin-bottom: 3px;
+}
+.job ul { padding-left: 12px; margin: 0; }
+.job ul li { font-size: 8.4pt; color: #222; margin-bottom: 3px; line-height: 1.36; text-align: justify;}
+.job ul li::marker { color: #0c2461; }
+.sep { border: none; border-top: 1px dashed #ccd8f0; margin: 8px 0; }
 
-/* ─── LEFT ─── */ 
-.edu-deg { font-size: 8.6pt; font-weight: 900; color: #0b1e3d; line-height: 1.3; } 
-.edu-school { font-size: 8pt; color: #444; margin-top: 1px; } 
-.edu-date { font-size: 7.6pt; color: #666; } 
-.edu-honor { font-size: 7.8pt; color: #1a7a3b; font-weight: 900; margin-top: 2px; }  
+/* ─── LEFT COLUMN ─── */
+.edu-deg { font-size: 8.6pt; font-weight: 900; color: #0b1e3d; line-height: 1.3; }
+.edu-school { font-size: 8pt; color: #444; margin-top: 1px; }
+.edu-date { font-size: 7.6pt; color: #666; }
+.edu-honor { font-size: 7.8pt; color: #1a7a3b; font-weight: 900; margin-top: 2px; }
 
-.cert {   
-  border-left: 3px solid #0c2461;   
-  padding: 4px 7px;   
-  margin-bottom: 5px;   
-  background: #fff; 
-} 
-.cert-name { font-size: 8pt; font-weight: 900; color: #0c2461; line-height: 1.3; } 
-.cert-sub { font-size: 7.5pt; color: #555; }  
+.cert {
+  border-left: 3px solid #0c2461;
+  padding: 4px 7px;
+  margin-bottom: 5px;
+  background: #fff;
+}
+.cert-name { font-size: 8pt; font-weight: 900; color: #0c2461; line-height: 1.3; }
+.cert-sub { font-size: 7.5pt; color: #555; }
 
-/* Training courses - compact list */ 
-.course-item { font-size: 7.8pt; color: #222; padding: 2px 0 2px 10px; position: relative; border-bottom: 1px dotted #dde; } 
-.course-item:last-child { border-bottom: none; } 
-.course-item::before { content: "▸"; color: #0c2461; position: absolute; left: 0; font-size: 7pt; top: 3px; } 
-.course-inst { font-size: 7pt; color: #777; }  
+.course-item { font-size: 7.8pt; color: #222; padding: 3px 0 3px 10px; position: relative; border-bottom: 1px dotted #dde; }
+.course-item:last-child { border-bottom: none; }
+.course-item::before { content: "▸"; color: #0c2461; position: absolute; left: 0; font-size: 7pt; top: 3px; }
+.course-inst { font-size: 7pt; color: #777; display: block;}
 
-.tags { line-height: 1.9; } 
-.tag {   
-  display: inline-block;   
-  font-size: 7.3pt; font-weight: 700;   
-  background: #0c2461; color: #fff;   
-  padding: 2px 6px; border-radius: 2px;   
-  margin: 1px 2px 1px 0; 
-} 
-.tag.light {   
-  background: #e4edff; color: #0c2461;   
-  border: 1px solid #b8cffa; 
-}  
+.tags { line-height: 1.9; }
+.tag {
+  display: inline-block;
+  font-size: 7.3pt; font-weight: 700;
+  background: #0c2461; color: #fff;
+  padding: 3px 6px; border-radius: 2px;
+  margin: 1px 2px 1px 0;
+}
+.tag.light {
+  background: #e4edff; color: #0c2461;
+  border: 1px solid #b8cffa;
+}
 
-.kpi-tbl { width: 100%; border-collapse: collapse; margin-bottom: 6px;} 
-.kpi-tbl td {   
-  width: 50%; text-align: center;   
-  padding: 4px 3px;   
-  border: 1px solid #d0dff5;   
-  background: #fff; 
-} 
-.kpi-n { font-size: 13pt; font-weight: 900; color: #0c2461; line-height: 1; } 
-.kpi-l { font-size: 6.8pt; color: #555; line-height: 1.2; margin-top: 1px; font-weight: bold;}  
+.kpi-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px;}
+.kpi-tbl td {
+  width: 50%; text-align: center;
+  padding: 4px 3px;
+  border: 1px solid #d0dff5;
+  background: #fff;
+}
+.kpi-n { font-size: 13pt; font-weight: 900; color: #0c2461; line-height: 1; }
+.kpi-l { font-size: 6.8pt; color: #555; line-height: 1.2; margin-top: 2px; font-weight: bold;}
 
-.lang-row { margin-bottom: 5px; } 
-.lang-name { font-size: 8.3pt; font-weight: 800; color: #0b1e3d; display: inline-block; width: 52px; } 
-.dot-f, .dot-e {   
-  display: inline-block;   
-  width: 8px; height: 8px;   
-  border-radius: 50%;   
-  margin-right: 3px;   
-  vertical-align: middle; 
-} 
-.dot-f { background: #0c2461; } 
-.dot-e { background: #fff; border: 1.5px solid #0c2461; }  
+.lang-row { margin-bottom: 5px; }
+.lang-name { font-size: 8.3pt; font-weight: 800; color: #0b1e3d; display: inline-block; width: 52px; }
+.dot-f, .dot-e {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+.dot-f { background: #0c2461; }
+.dot-e { background: #fff; border: 1.5px solid #0c2461; }
 
-.ach-tbl { width: 100%; border-collapse: collapse; } 
-.ach-ic { width: 14px; font-size: 9pt; vertical-align: top; padding-top: 1px; } 
-.ach-tx { font-size: 8pt; color: #222; line-height: 1.38; vertical-align: top; padding-bottom: 4px; }  
+.ach-tbl { width: 100%; border-collapse: collapse; }
+.ach-ic { width: 16px; font-size: 9.5pt; vertical-align: top; padding-top: 1px; }
+.ach-tx { font-size: 8pt; color: #222; line-height: 1.38; vertical-align: top; padding-bottom: 4px; font-weight: bold;}
 
-/* Early experience compact table */ 
-.early-tbl { width: 100%; border-collapse: collapse; } 
-.early-tbl tr { border-bottom: 1px dotted #d5e0f0; } 
-.early-tbl td { padding: 3px 3px; font-size: 7.8pt; vertical-align: top; } 
-.early-role { font-weight: 800; color: #0b1e3d; } 
-.early-co { color: #0c2461; } 
-.early-date { color: #888; font-size: 7.2pt; text-align: right; white-space: nowrap; } 
-</style> 
-</head> 
-<body>  
+/* Early experience */
+.early-tbl { width: 100%; border-collapse: collapse; }
+.early-tbl tr { border-bottom: 1px dotted #d5e0f0; }
+.early-tbl td { padding: 4px 3px; font-size: 7.8pt; vertical-align: top; }
+.early-role { font-weight: 800; color: #0b1e3d; }
+.early-co { color: #0c2461; display: block; font-size: 7.5pt;}
+.early-date { color: #888; font-size: 7.2pt; text-align: right; white-space: nowrap; }
 
-<!-- ═══ HEADER ═══ --> 
-<div class="hdr">   
-  <table class="hdr-top"><tr>     
-    <td><h1>Marwan A. Mathkoor</h1></td>     
-    <td style="text-align:right;vertical-align:top;"><span class="hdr-badge">⭐ IDEAL EMPLOYEE</span></td>   
-  </tr></table>   
-  <div class="hdr-title">Senior Research, Business Analysis &amp; Digital Transformation Specialist</div>   
-  <div class="hdr-contacts">     
-    <table><tr>       
-      <td>📞 +967-770-600-045</td>       
-      <td>✉ <a href="mailto:mathkoormarwan@gmail.com">mathkoormarwan@gmail.com</a></td>       
-      <td>📍 Sana'a, Yemen</td>       
-      <td>🔗 <a href="https://linkedin.com/in/marwan-mathkoor">linkedin.com/in/marwan-mathkoor</a></td>           
-    </tr></table>   
-  </div> 
-</div>  
+/* إخفاء الزر عند الطباعة العادية (للاحتياط) */
+@media print {
+  body { background: #fff; padding: 0; }
+  .download-btn { display: none !important; }
+  #cv-container { box-shadow: none; width: 100%; }
+}
+</style>
+</head>
+<body>
 
-<!-- ═══ COLUMNS ═══ --> 
-<table class="cols"><tr>  
+<!-- زر تحميل الـ PDF -->
+<button class="download-btn" id="downloadBtn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+  Export to PDF (A4)
+</button>
 
-  <!-- ════ LEFT COLUMN ════ --> 
-  <td class="col-left">    
+<!-- ═══ الحاوية الرئيسية للسيرة الذاتية ═══ -->
+<div id="cv-container">
+  
+  <!-- ═══ HEADER ═══ -->
+  <div class="hdr">
+    <table class="hdr-top"><tr>
+      <td><h1>Marwan A. Mathkoor</h1></td>
+      <td style="text-align:right;vertical-align:top;"><span class="hdr-badge">⭐ IDEAL EMPLOYEE</span></td>
+    </tr></table>
+    <div class="hdr-title">Senior Research, Business Analysis &amp; Digital Transformation Specialist</div>
+    <div class="hdr-contacts">
+      <table><tr>
+        <td>📞 +967-770-600-045</td>
+        <td>✉ <a href="mailto:mathkoormarwan@gmail.com">mathkoormarwan@gmail.com</a></td>
+        <td>📍 Sana'a, Yemen</td>
+        <td>🔗 linkedin.com/in/marwan-mathkoor</td>
+      </tr></table>
+    </div>
+  </div>
+
+  <!-- ═══ COLUMNS ═══ -->
+  <table class="cols"><tr>
+
+    <!-- ════ LEFT COLUMN ════ -->
+    <td class="col-left">
+      
+      <div class="stitle">Key Figures</div>
+      <table class="kpi-tbl">
+        <tr>
+          <td><div class="kpi-n">5+</div><div class="kpi-l">Years Experience</div></td>
+          <td><div class="kpi-n">20+</div><div class="kpi-l">Research Reports</div></td>
+        </tr>
+        <tr>
+          <td><div class="kpi-n">40+</div><div class="kpi-l">Training Programs</div></td>
+          <td><div class="kpi-n">25+</div><div class="kpi-l">Advisory Projects</div></td>
+        </tr>
+      </table>
+
+      <div class="stitle">Education</div>
+      <div class="edu-deg">B.Sc. Management Information Systems (MIS)</div>
+      <div class="edu-school">University of Science &amp; Technology</div>
+      <div class="edu-date">2014 – 2018 | Sana'a, Yemen</div>
+      <div class="edu-honor">🏅 Distinction with Honors - GPA: 93%</div>
+
+      <div class="stitle">Certifications</div>
+      <div class="cert">
+        <div class="cert-name">Project Management Professional</div>
+        <div class="cert-sub">Tamkeen Platform, KSA &nbsp;|&nbsp; 2025</div>
+      </div>
+      <div class="cert">
+        <div class="cert-name">Applied Bank Marketing Diploma</div>
+        <div class="cert-sub">Institute of Banking Studies &nbsp;|&nbsp; 2024</div>
+      </div>
+      <div class="cert">
+        <div class="cert-name">Intl. IT Skills Diploma</div>
+        <div class="cert-sub">Jordan</div>
+      </div>
+
+      <div class="stitle">Training Courses</div>
+      <div class="course-item">Academic Review &amp; Accreditation (CIS)<span class="course-inst">Specialized Workshop</span></div>
+      <div class="course-item">Market Study Preparation<span class="course-inst">Institute of Banking Studies</span></div>
+      <div class="course-item">Customer Satisfaction Measurement<span class="course-inst">Institute of Banking Studies</span></div>
+      <div class="course-item">Managing CX in Banks<span class="course-inst">Institute of Banking Studies</span></div>
+      <div class="course-item">Quality Mgmt. Systems (ISO 9001)<span class="course-inst">Institute of Banking Studies</span></div>
+      <div class="course-item">Advanced Digital Marketing<span class="course-inst">Institute of Banking Studies</span></div>
+      <div class="course-item">Participatory Planning<span class="course-inst">National Vision</span></div>
+      <div class="course-item">Web Development (WordPress)<span class="course-inst">Edraak Platform</span></div>
+
+      <div class="stitle">Technical Skills</div>
+      <div class="tags">
+        <span class="tag">AI Tools</span>
+        <span class="tag">Python</span>
+        <span class="tag">Power BI</span>
+        <span class="tag">SPSS</span>
+        <span class="tag">Advanced Excel</span>
+        <span class="tag">Temenos T24</span>
+        <span class="tag">CRM Systems</span>
+        <span class="tag">Google/MS Forms</span>
+        <span class="tag">WordPress</span>
+      </div>
+
+      <div class="stitle">Core Competencies</div>
+      <div class="tags">
+        <span class="tag light">Market Research</span>
+        <span class="tag light">Data Analytics</span>
+        <span class="tag light">Survey Design</span>
+        <span class="tag light">Product Development</span>
+        <span class="tag light">Digital Transformation</span>
+        <span class="tag light">Strategic Planning</span>
+        <span class="tag light">Customer Experience (CX)</span>
+        <span class="tag light">Banking Operations</span>
+      </div>
+
+      <div class="stitle">Languages</div>
+      <div class="lang-row">
+        <span class="lang-name">Arabic</span>
+        <span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span>
+        &nbsp;<span style="font-size:7.5pt;color:#555;">Native</span>
+      </div>
+      <div class="lang-row">
+        <span class="lang-name">English</span>
+        <span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-e"></span><span class="dot-e"></span>
+        &nbsp;<span style="font-size:7.5pt;color:#555;">Professional</span>
+      </div>
+
+    </td>
+
+    <!-- ════ RIGHT COLUMN ════ -->
+    <td class="col-right">
+      
+      <div class="stitle">Executive Profile</div>
+      <div class="summary">
+        Banking Research and Business Analysis professional with <b>5+ years of experience</b> in market research, strategic studies, customer experience, digital transformation, product development, and data analytics. Experienced in leveraging <b>Artificial Intelligence, Python, Power BI, SPSS</b>, and advanced analytics to support executive decision-making, identify growth opportunities, improve customer satisfaction, and optimize banking operations. Recognized for analytical excellence, innovation, and holding multiple employee recognition awards.
+      </div>
+
+      <div class="stitle">Awards &amp; Recognition</div>
+      <table class="ach-tbl">
+        <tr><td class="ach-ic">⭐</td><td class="ach-tx"><b>Ideal Employee Award</b> — Received multiple times across organizations for exceptional performance.</td></tr>
+        <tr><td class="ach-ic">🌍</td><td class="ach-tx"><b>International Participation</b> — Represented Mathkoor Store at the Arab Entrepreneurs Summit, Doha.</td></tr>
+      </table>
+
+      <div class="stitle">Professional Experience</div>
+
+      <!-- JOB 1 -->
+      <div class="job">
+        <table class="job-head"><tr>
+          <td class="job-title">Research &amp; Studies Specialist</td>
+          <td class="job-date">Nov 2025 – Present</td>
+        </tr></table>
+        <div class="job-co">Al-Kuraimi Islamic Microfinance Bank</div>
+        <ul>
+          <li>Lead comprehensive research initiatives related to banking products, customer behavior, and market opportunities.</li>
+          <li>Developed and implemented <b>AI-assisted interactive testing solutions</b> and automated survey systems.</li>
+          <li>Conducted strategic market studies on electronic wallets and the adoption of digital financial services.</li>
+          <li>Submitted robust enhancement recommendations for the <b>Temenos T24 core banking system</b> and digital channels.</li>
+          <li>Delivered high-level strategic reports supporting executive decision-making and business growth.</li>
+        </ul>
+      </div>
+      <hr class="sep">
+
+      <!-- JOB 2 -->
+      <div class="job">
+        <table class="job-head"><tr>
+          <td class="job-title">Data &amp; Research Specialist</td>
+          <td class="job-date">Dec 2020 – Nov 2025</td>
+        </tr></table>
+        <div class="job-co">Al-Amal Microfinance Bank</div>
+        <span class="job-tag">⭐ Ideal Employee Award</span>
+        <ul>
+          <li>Designed and executed sustainable mechanisms for measuring <b>Customer Satisfaction (CSAT/NPS)</b> and customer experience initiatives.</li>
+          <li>Conducted in-depth market research, feasibility studies, and strategic banking analysis utilizing SPSS.</li>
+          <li>Contributed significantly to CRM system enhancements and the strategic development of new banking products.</li>
+          <li>Provided operational and research support for emergency cash transfer projects and key institutional initiatives.</li>
+        </ul>
+      </div>
+      <hr class="sep">
+
+      <!-- JOB 3 -->
+      <div class="job">
+        <table class="job-head"><tr>
+          <td class="job-title">Electronic Platforms Specialist</td>
+          <td class="job-date">Apr 2021 – Nov 2025</td>
+        </tr></table>
+        <div class="job-co">Al-Amal Microfinance Bank <span style="font-size:7.5pt;color:#888;font-weight:normal;">(Concurrent Role)</span></div>
+        <ul>
+          <li>Supported the bank’s digital transformation projects by supervising online banking platforms and service optimization.</li>
+          <li>Focused on driving <b>UI/UX improvements</b>, ensuring a seamless and modern digital service journey for end-users.</li>
+        </ul>
+      </div>
+      <hr class="sep">
+
+      <!-- JOB 4 -->
+      <div class="job">
+        <table class="job-head"><tr>
+          <td class="job-title">Founder &amp; E-Commerce Manager</td>
+          <td class="job-date">Mar 2020 – Oct 2022</td>
+        </tr></table>
+        <div class="job-co">Mathkoor Store</div>
+        <ul>
+          <li>Exercised full executive oversight over operations, suppliers management, and end-to-end business growth initiatives.</li>
+          <li>Successfully represented Mathkoor Store as the principal executive during an <b>official business visit to Doha, Qatar</b> to explore strategic partnerships.</li>
+          <li>Executed digital marketing campaigns and managed customer engagement to significantly drive online sales.</li>
+        </ul>
+      </div>
+
+      <!-- EARLY EXPERIENCE -->
+      <div class="stitle">Additional Experience</div>
+      <table class="early-tbl">
+        <tr>
+          <td><span class="early-role">Marketing &amp; PR Admin. Secretary</span><span class="early-co">University of Science &amp; Technology</span></td>
+          <td class="early-date">Jun 2019 – Aug 2020</td>
+        </tr>
+        <tr>
+          <td><span class="early-role">Quality Assurance Participant</span><span class="early-co">University of Science &amp; Technology</span></td>
+          <td class="early-date">2018 – 2020</td>
+        </tr>
+        <tr>
+          <td><span class="early-role">Software Developer</span><span class="early-co">Infinitecloud Company</span></td>
+          <td class="early-date">Jul 2018 – May 2019</td>
+        </tr>
+        <tr>
+          <td><span class="early-role">Telecom Agent &amp; Distributor</span><span class="early-co">Louay Telecom</span></td>
+          <td class="early-date">Apr 2018 – Aug 2020</td>
+        </tr>
+      </table>
+
+    </td>
+  </tr></table>
+</div>
+
+<script>
+// كود الجافاسكربت الخاص بتحويل الـ HTML إلى PDF بجودة عالية
+document.getElementById('downloadBtn').addEventListener('click', function() {
     
-    <div class="stitle">Key Figures</div>   
-    <table class="kpi-tbl">     
-      <tr>       
-        <td><div class="kpi-n">5+</div><div class="kpi-l">Years Experience</div></td>       
-        <td><div class="kpi-n">20+</div><div class="kpi-l">Research Reports</div></td>     
-      </tr>     
-      <tr>       
-        <td><div class="kpi-n">40+</div><div class="kpi-l">Training Programs</div></td>       
-        <td><div class="kpi-n">25+</div><div class="kpi-l">Advisory Projects</div></td>     
-      </tr>   
-    </table>    
+    // إخفاء الزر أثناء التقاط الصورة
+    this.style.display = 'none';
+    
+    // تحديد العنصر الذي سيتم تحويله
+    const element = document.getElementById('cv-container');
+    
+    // إعدادات الـ PDF
+    const opt = {
+        margin:       0,
+        filename:     'Marwan_Mathkoor_CV.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 3, useCORS: true, logging: false }, // Scale 3 لضمان أعلى دقة للنصوص
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-    <div class="stitle">Education</div>   
-    <div class="edu-deg">B.Sc. Management Information Systems</div>   
-    <div class="edu-school">University of Science &amp; Technology</div>   
-    <div class="edu-date">2014 – 2018 &nbsp;|&nbsp; Sana'a, Yemen</div>   
-    <div class="edu-honor">🏅 Distinction with Honors - GPA: 93%</div>    
-    
-    <div class="stitle">Certifications</div>   
-    <div class="cert">     
-      <div class="cert-name">Project Management Professional</div>     
-      <div class="cert-sub">Tamkeen Platform, KSA &nbsp;|&nbsp; 2025</div>   
-    </div>   
-    <div class="cert">     
-      <div class="cert-name">Applied Bank Marketing Diploma</div>     
-      <div class="cert-sub">Institute of Banking Studies &nbsp;|&nbsp; 2024</div>   
-    </div>   
-    <div class="cert">     
-      <div class="cert-name">Intl. IT Skills Diploma</div>     
-      <div class="cert-sub">Jordan</div>   
-    </div>    
-    
-    <div class="stitle">Training Courses</div>   
-    <div class="course-item">Academic Review &amp; Accreditation (CIS)<span class="course-inst"> &nbsp;– Specialized Workshop</span></div>
-    <div class="course-item">Market Study Preparation<span class="course-inst"> &nbsp;– Institute of Banking Studies</span></div>   
-    <div class="course-item">Customer Satisfaction Measurement<span class="course-inst"> &nbsp;– Institute of Banking Studies</span></div>   
-    <div class="course-item">Managing CX in Banks<span class="course-inst"> &nbsp;– Institute of Banking Studies</span></div>   
-    <div class="course-item">Quality Mgmt. Systems (ISO 9001)<span class="course-inst"> &nbsp;– Institute of Banking Studies</span></div>   
-    <div class="course-item">Advanced Digital Marketing<span class="course-inst"> &nbsp;– Institute of Banking Studies</span></div>   
-    <div class="course-item">Participatory Planning<span class="course-inst"> &nbsp;– National Vision</span></div>   
-    <div class="course-item">Web Development (WordPress)<span class="course-inst"> &nbsp;– Edraak Platform</span></div>    
-    
-    <div class="stitle">Technical Skills</div>   
-    <div class="tags">     
-      <span class="tag">AI Tools (ChatGPT, Claude)</span>
-      <span class="tag">Python</span>     
-      <span class="tag">Power BI</span>     
-      <span class="tag">SPSS</span>     
-      <span class="tag">Excel (Advanced)</span>
-      <span class="tag">Temenos T24</span>     
-      <span class="tag">CRM Systems</span>     
-      <span class="tag">Google/MS Forms</span>     
-      <span class="tag">WordPress</span>     
-      <span class="tag">Data Visualization</span>   
-    </div>    
-    
-    <div class="stitle">Core Competencies</div>   
-    <div class="tags">     
-      <span class="tag light">Market Research</span>     
-      <span class="tag light">Data Analytics</span>     
-      <span class="tag light">Survey Design</span>     
-      <span class="tag light">Product Development</span>     
-      <span class="tag light">Digital Transformation</span>     
-      <span class="tag light">Strategic Planning</span>     
-      <span class="tag light">Customer Experience (CX)</span>     
-      <span class="tag light">VIP Experience</span>     
-      <span class="tag light">Banking Operations</span>   
-    </div>    
-    
-    <div class="stitle">Languages</div>   
-    <div class="lang-row">     
-      <span class="lang-name">Arabic</span>     
-      <span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span>     
-      &nbsp;<span style="font-size:7.3pt;color:#555;">Native</span>   
-    </div>   
-    <div class="lang-row">     
-      <span class="lang-name">English</span>     
-      <span class="dot-f"></span><span class="dot-f"></span><span class="dot-f"></span><span class="dot-e"></span><span class="dot-e"></span>     
-      &nbsp;<span style="font-size:7.3pt;color:#555;">Professional</span>   
-    </div>    
-    
-    <div class="stitle">Recognition</div>   
-    <table class="ach-tbl">     
-      <tr><td class="ach-ic">⭐</td><td class="ach-tx"><b>Ideal Employee Award</b> — Multiple organizations</td></tr>     
-      <tr><td class="ach-ic">🌍</td><td class="ach-tx"><b>Intl. Participation</b> — Represented Mathkoor Store at Arab Entrepreneurs Summit, Doha.</td></tr>   
-    </table>  
+    // تنفيذ التحويل
+    html2pdf().set(opt).from(element).save().then(() => {
+        // إعادة إظهار الزر بعد التنزيل
+        document.getElementById('downloadBtn').style.display = 'flex';
+    });
+});
+</script>
 
-  </td>  
-
-  <!-- ════ RIGHT COLUMN ════ --> 
-  <td class="col-right">    
-    
-    <div class="stitle">Executive Profile</div>   
-    <div class="summary">     
-      Banking Research and Business Analysis professional with <b>5+ years of experience</b> in market research, strategic studies, customer experience, digital transformation, product development, and data analytics. Experienced in leveraging <b>Artificial Intelligence, Python, Power BI, SPSS</b>, and advanced analytics to support executive decision-making, identify growth opportunities, improve customer satisfaction, and optimize banking operations. Recognized for analytical excellence, innovation, and holding multiple employee recognition awards.
-    </div>    
-    
-    <div class="stitle">Professional Experience</div>    
-    
-    <!-- JOB 1 -->   
-    <div class="job">     
-      <table class="job-head"><tr>       
-        <td class="job-title">Research &amp; Studies Specialist</td>       
-        <td class="job-date">Nov 2025 – Present</td>     
-      </tr></table>     
-      <div class="job-co">Al-Kuraimi Islamic Microfinance Bank</div>     
-      <ul>       
-        <li>Lead research initiatives related to banking products, customer behavior, and market opportunities.</li>       
-        <li>Developed <b>AI-assisted interactive testing solutions</b> and automated survey systems for banking environments.</li>       
-        <li>Conducted strategic studies on electronic wallets and the adoption of digital financial services.</li>       
-        <li>Submitted robust enhancement recommendations for the <b>Temenos T24 core banking system</b> and digital channels.</li>       
-        <li>Delivered high-level strategic reports supporting executive decision-making and business growth.</li>     
-      </ul>   
-    </div>   
-    <hr class="sep">    
-    
-    <!-- JOB 2 -->   
-    <div class="job">     
-      <table class="job-head"><tr>       
-        <td class="job-title">Research &amp; Studies Specialist</td>       
-        <td class="job-date">Dec 2020 – Nov 2025</td>     
-      </tr></table>     
-      <div class="job-co">Al-Amal Microfinance Bank</div>     
-      <span class="job-tag">⭐ Ideal Employee Recognition</span>     
-      <ul>       
-        <li>Designed and executed sustainable mechanisms for measuring <b>Customer Satisfaction (CSAT/NPS)</b> and customer experience initiatives.</li>       
-        <li>Conducted in-depth market research, feasibility studies, and strategic banking analysis utilizing SPSS.</li>       
-        <li>Contributed significantly to CRM system enhancements and the strategic development of new banking products.</li>       
-        <li>Provided operational and research support for emergency cash transfer projects and key institutional initiatives.</li>     
-      </ul>   
-    </div>   
-    <hr class="sep">    
-    
-    <!-- JOB 3 -->   
-    <div class="job">     
-      <table class="job-head"><tr>       
-        <td class="job-title">Electronic Platforms Specialist</td>       
-        <td class="job-date">Apr 2021 – Nov 2025</td>     
-      </tr></table>     
-      <div class="job-co">Al-Amal Microfinance Bank <span style="font-size:7.5pt;color:#888; font-weight:normal;">(Concurrent Role)</span></div>     
-      <ul>       
-        <li>Supported the bank’s digital transformation projects by supervising online banking platforms.</li>       
-        <li>Focused on driving <b>UI/UX improvements</b> and digital service optimization, ensuring a seamless digital journey for end-users.</li>     
-      </ul>   
-    </div>   
-    <hr class="sep">    
-    
-    <!-- JOB 4 -->   
-    <div class="job">     
-      <table class="job-head"><tr>       
-        <td class="job-title">Founder &amp; E-Commerce Manager</td>       
-        <td class="job-date">Mar 2020 – Oct 2022</td>     
-      </tr></table>     
-      <div class="job-co">Mathkoor Store</div>     
-      <ul>       
-        <li>Exercised full executive oversight over operations, suppliers management, and end-to-end business growth initiatives.</li>       
-        <li>Successfully represented Mathkoor Store as the principal executive during an <b>official business visit to Doha, Qatar</b> to explore strategic partnerships.</li>       
-        <li>Executed digital marketing campaigns and managed customer engagement to significantly drive online sales.</li>     
-      </ul>   
-    </div>   
-    <hr class="sep">    
-    
-    <!-- EARLY EXPERIENCE -->   
-    <div class="stitle">Additional Experience</div>   
-    <table class="early-tbl">     
-      <tr>       
-        <td><span class="early-role">Marketing &amp; PR Admin. Secretary</span><br><span class="early-co">University of Science &amp; Technology</span></td>       
-        <td class="early-date">Jun 2019 – Aug 2020</td>     
-      </tr>     
-      <tr>       
-        <td><span class="early-role">Quality Assurance Participant</span><br><span class="early-co">University of Science &amp; Technology</span></td>       
-        <td class="early-date">2018 – 2020</td>     
-      </tr>     
-      <tr>       
-        <td><span class="early-role">Programmer</span><br><span class="early-co">Infinitecloud Company</span></td>       
-        <td class="early-date">Jul 2018 – May 2019</td>     
-      </tr>     
-      <tr>       
-        <td><span class="early-role">Telecom Agent &amp; Distributor</span><br><span class="early-co">Louay Telecom</span></td>       
-        <td class="early-date">Apr 2018 – Aug 2020</td>     
-      </tr>   
-    </table>  
-    
-  </td> 
-</tr></table>  
-
-</body> 
+</body>
 </html>
