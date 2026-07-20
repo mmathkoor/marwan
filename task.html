@@ -34,40 +34,69 @@
 
     <!-- شاشة تسجيل الدخول (Authentication UI) -->
     <div id="auth-overlay" class="fixed inset-0 bg-gray-900/90 z-[200] flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
+            
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-lg">
                     <i class="fas fa-bullseye"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">مرحباً بك في مسار الإنجاز</h2>
-                <p class="text-gray-500 mt-2 text-sm">سجل دخولك لحفظ أهدافك في مساحتك الخاصة</p>
+                <h2 class="text-2xl font-bold text-gray-800" id="auth-title">مرحباً بك في مسار الإنجاز</h2>
+                <p class="text-gray-500 mt-2 text-sm" id="auth-subtitle">سجل دخولك لحفظ أهدافك في مساحتك الخاصة</p>
             </div>
 
             <div id="auth-error" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm mb-4 text-center"></div>
 
-            <form id="auth-form" class="space-y-4" onsubmit="event.preventDefault(); window.handleAuth();">
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4" onsubmit="event.preventDefault(); window.handleAuth();">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="auth-email" required class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="email" id="login-email" required class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="auth-password" required minlength="6" class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="password" id="login-password" required minlength="6" class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 
-                <div class="flex gap-3 pt-4">
-                    <button type="submit" id="btn-login" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors">
-                        تسجيل الدخول
+                <div class="pt-4">
+                    <button type="submit" id="btn-login-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        تسجيل الدخول <i class="fas fa-sign-in-alt hidden" id="login-spinner"></i>
                     </button>
-                    <button type="button" onclick="window.handleRegister()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2.5 rounded-lg transition-colors">
-                        إنشاء حساب
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p class="text-sm text-gray-600">ليس لديك حساب؟ <button type="button" onclick="window.toggleAuthView('register')" class="text-blue-600 hover:underline font-bold">إنشاء حساب جديد</button></p>
+                </div>
+            </form>
+
+            <!-- Registration Form (Hidden by default) -->
+            <form id="register-form" class="space-y-4 hidden" onsubmit="event.preventDefault(); window.handleRegister();">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل</label>
+                    <input type="text" id="reg-name" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="محمد أحمد">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="reg-email" required class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور (6 أحرف على الأقل)</label>
+                    <input type="password" id="reg-password" required minlength="6" class="w-full border border-gray-300 rounded-lg p-2.5 text-left dir-ltr focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" id="btn-reg-submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        إنشاء الحساب <i class="fas fa-user-plus hidden" id="reg-spinner"></i>
                     </button>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-sm text-gray-600">لديك حساب بالفعل؟ <button type="button" onclick="window.toggleAuthView('login')" class="text-blue-600 hover:underline font-bold">تسجيل الدخول</button></p>
                 </div>
             </form>
             
             <div class="mt-6 border-t pt-4 text-center">
                 <button onclick="window.handleGuestLogin()" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                    المتابعة كزائر (بدون حفظ دائم) <i class="fas fa-arrow-left text-xs ml-1"></i>
+                    المتابعة كزائر (تخزين محلي فقط) <i class="fas fa-arrow-left text-xs ml-1"></i>
                 </button>
             </div>
         </div>
@@ -76,7 +105,8 @@
     <!-- Loading Overlay -->
     <div id="initial-loader" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
         <div class="loader mb-4"></div>
-        <p class="text-gray-500 font-medium">جاري المزامنة مع السحابة...</p>
+        <p class="text-gray-500 font-medium" id="loader-text">جاري الاتصال بالسحابة...</p>
+        <button id="btn-force-local" onclick="window.forceLocalMode()" class="mt-8 text-sm text-blue-600 hover:underline hidden">تخطي المزامنة والمتابعة محلياً</button>
     </div>
 
     <!-- Sidebar -->
@@ -393,9 +423,28 @@
         };
 
         // --- STREAMING_CHUNK:App Initialization & Auth ---
+        
+        let initTimeout;
+
+        window.forceLocalMode = function() {
+            clearTimeout(initTimeout);
+            document.getElementById('initial-loader').classList.add('hidden');
+            document.getElementById('auth-overlay').classList.remove('hidden');
+            showToast("تم تجاوز الاتصال. يمكنك المتابعة كزائر.", "warning");
+        };
+
         async function initApp() {
             initDate();
             setupEventListeners();
+            
+            // إضافة مؤقت أمان لكي لا يعلق شاشة التحميل للأبد
+            initTimeout = setTimeout(() => {
+                const loader = document.getElementById('initial-loader');
+                if(!loader.classList.contains('hidden')) {
+                    document.getElementById('loader-text').textContent = "يبدو أن الاتصال يستغرق وقتاً طويلاً.";
+                    document.getElementById('btn-force-local').classList.remove('hidden');
+                }
+            }, 8000); // 8 ثواني كحد أقصى للانتظار
             
             try {
                 // محاولة تهيئة Firebase
@@ -425,6 +474,7 @@
 
                 // Wait for initial auth state
                 await auth.authStateReady();
+                clearTimeout(initTimeout); // إلغاء المؤقت إذا نجح الاتصال
                 
                 if (auth.currentUser) {
                     userId = auth.currentUser.uid;
@@ -441,6 +491,7 @@
                 }
 
             } catch (error) {
+                clearTimeout(initTimeout);
                 console.error("Firebase Init Error:", error);
                 console.warn("Falling back to local mode...");
                 // إذا فشل Firebase لأي سبب، نظهر الواجهة على الأقل للمحاولة المحلية
@@ -457,82 +508,112 @@
             }
         }
 
+        window.toggleAuthView = function(view) {
+            const errEl = document.getElementById('auth-error');
+            errEl.classList.add('hidden');
+            
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+
+            if(view === 'register') {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                title.textContent = 'ابدأ رحلة الإنجاز';
+                subtitle.textContent = 'أنشئ مساحتك الخاصة وتتبع أهدافك بفعالية';
+            } else {
+                regForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                title.textContent = 'مرحباً بك مجدداً';
+                subtitle.textContent = 'سجل دخولك لحفظ أهدافك في مساحتك الخاصة';
+            }
+        }
+
         function updateUserUI() {
             document.getElementById('auth-overlay').classList.add('hidden');
+            // Check if name is in displayName, otherwise use email
+            const name = auth.currentUser?.displayName;
             const email = auth.currentUser?.email;
-            document.getElementById('user-email-display').textContent = email ? email : 'حساب زائر (غير مسجل)';
+            let displayString = 'حساب زائر';
+            
+            if (name) displayString = name;
+            else if (email) displayString = email.split('@')[0];
+            
+            document.getElementById('user-email-display').textContent = displayString;
         }
 
         // Auth Methods
         window.handleAuth = async function() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
             const errEl = document.getElementById('auth-error');
+            const btn = document.getElementById('btn-login-submit');
+            
             try {
+                btn.disabled = true;
+                btn.innerHTML = 'جاري التحقق... <i class="fas fa-spinner fa-spin"></i>';
                 errEl.classList.add('hidden');
+                
                 await signInWithEmailAndPassword(auth, email, pass);
+                
                 userId = auth.currentUser.uid;
                 updateUserUI();
                 document.getElementById('initial-loader').classList.remove('hidden');
+                document.getElementById('loader-text').textContent = 'جاري مزامنة بياناتك...';
                 setupRealtimeSync();
                 showToast('تم تسجيل الدخول بنجاح', 'success');
             } catch(e) {
                 console.error("Auth Error:", e);
-                errEl.textContent = 'بيانات الدخول غير صحيحة أو الحساب غير موجود';
+                errEl.textContent = 'بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.';
                 errEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'تسجيل الدخول';
             }
         }
 
+        import { updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
         window.handleRegister = async function() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
             const errEl = document.getElementById('auth-error');
+            const btn = document.getElementById('btn-reg-submit');
             
-            if(!email || pass.length < 6) {
-                errEl.textContent = 'أدخل بريد صحيح وكلمة مرور (6 أحرف على الأقل)';
+            if(!email || pass.length < 6 || !name) {
+                errEl.textContent = 'يرجى إكمال جميع الحقول (كلمة المرور 6 أحرف على الأقل)';
                 errEl.classList.remove('hidden'); return;
             }
 
             try {
+                btn.disabled = true;
+                btn.innerHTML = 'جاري الإنشاء... <i class="fas fa-spinner fa-spin"></i>';
                 errEl.classList.add('hidden');
-                await createUserWithEmailAndPassword(auth, email, pass);
+                
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                
+                // تحديث اسم المستخدم
+                await updateProfile(userCredential.user, { displayName: name });
+                
                 userId = auth.currentUser.uid;
                 updateUserUI();
                 document.getElementById('initial-loader').classList.remove('hidden');
+                document.getElementById('loader-text').textContent = 'جاري إعداد مساحتك...';
                 setupRealtimeSync();
-                showToast('تم إنشاء حسابك السري بنجاح!', 'success');
+                showToast('تم إنشاء حسابك بنجاح!', 'success');
             } catch(e) {
                 console.error("Register Error:", e);
                 if (e.code === 'auth/email-already-in-use') {
-                    errEl.textContent = 'البريد الإلكتروني مسجل مسبقاً. الرجاء تسجيل الدخول.';
+                    errEl.textContent = 'البريد الإلكتروني مسجل مسبقاً. يرجى تسجيل الدخول.';
+                } else if(e.code === 'auth/weak-password') {
+                     errEl.textContent = 'كلمة المرور ضعيفة جداً.';
                 } else {
                     errEl.textContent = 'حدث خطأ أثناء إنشاء الحساب. تأكد من صحة البيانات.';
                 }
                 errEl.classList.remove('hidden');
-            }
-        }
-
-        window.handleRegister = async function() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            const errEl = document.getElementById('auth-error');
-            
-            if(!email || pass.length < 6) {
-                errEl.textContent = 'أدخل بريد صحيح وكلمة مرور (6 أحرف على الأقل)';
-                errEl.classList.remove('hidden'); return;
-            }
-
-            try {
-                errEl.classList.add('hidden');
-                await createUserWithEmailAndPassword(auth, email, pass);
-                userId = auth.currentUser.uid;
-                updateUserUI();
-                document.getElementById('initial-loader').classList.remove('hidden');
-                setupRealtimeSync();
-                showToast('تم إنشاء حسابك السري بنجاح!', 'success');
-            } catch(e) {
-                errEl.textContent = 'حدث خطأ أو البريد مسجل مسبقاً';
-                errEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'إنشاء الحساب';
             }
         }
 
