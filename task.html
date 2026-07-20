@@ -8,6 +8,7 @@
     <!-- تم تحديث رابط الأيقونات لسيرفر أقوى لضمان عملها -->
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
         
@@ -384,7 +385,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Configuration
@@ -477,9 +478,20 @@
                 clearTimeout(initTimeout); // إلغاء المؤقت إذا نجح الاتصال
                 
                 if (auth.currentUser) {
-                    userId = auth.currentUser.uid;
-                    updateUserUI();
-                    setupRealtimeSync();
+                    if (!auth.currentUser.isAnonymous && !auth.currentUser.emailVerified) {
+                        // الحساب غير مفعل، يتم تسجيل الخروج الفوري
+                        await signOut(auth);
+                        document.getElementById('initial-loader').classList.add('hidden');
+                        document.getElementById('auth-overlay').classList.remove('hidden');
+                        const errEl = document.getElementById('auth-error');
+                        errEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-yellow-50 border-yellow-200 text-yellow-800';
+                        errEl.innerHTML = 'يرجى <b>تفعيل حسابك</b> أولاً عبر الرابط المرسل إلى بريدك الإلكتروني.';
+                        errEl.classList.remove('hidden');
+                    } else {
+                        userId = auth.currentUser.uid;
+                        updateUserUI();
+                        setupRealtimeSync();
+                    }
                 } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                     userId = auth.currentUser.uid;
@@ -510,7 +522,7 @@
 
         window.toggleAuthView = function(view) {
             const errEl = document.getElementById('auth-error');
-            errEl.classList.add('hidden');
+            errEl.className = 'hidden border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-red-50 border-red-200 text-red-600';
             
             const loginForm = document.getElementById('login-form');
             const regForm = document.getElementById('register-form');
@@ -555,7 +567,18 @@
                 btn.innerHTML = 'جاري التحقق... <i class="fas fa-spinner fa-spin"></i>';
                 errEl.classList.add('hidden');
                 
-                await signInWithEmailAndPassword(auth, email, pass);
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                
+                // التحقق مما إذا كان البريد الإلكتروني مفعلاً
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth); // إخراجه فوراً
+                    errEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-yellow-50 border-yellow-200 text-yellow-800';
+                    errEl.innerHTML = 'حسابك غير مفعل بعد! يرجى مراجعة بريدك الإلكتروني (أو مجلد المهملات) والضغط على رابط التفعيل المرفق.';
+                    errEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = 'تسجيل الدخول <i class="fas fa-sign-in-alt hidden" id="login-spinner"></i>';
+                    return;
+                }
                 
                 userId = auth.currentUser.uid;
                 updateUserUI();
@@ -565,10 +588,11 @@
                 showToast('تم تسجيل الدخول بنجاح', 'success');
             } catch(e) {
                 console.error("Auth Error:", e);
+                errEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-red-50 border-red-200 text-red-600';
                 errEl.textContent = 'بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.';
                 errEl.classList.remove('hidden');
                 btn.disabled = false;
-                btn.innerHTML = 'تسجيل الدخول';
+                btn.innerHTML = 'تسجيل الدخول <i class="fas fa-sign-in-alt hidden" id="login-spinner"></i>';
             }
         }
 
@@ -582,6 +606,7 @@
             const btn = document.getElementById('btn-reg-submit');
             
             if(!email || pass.length < 6 || !name) {
+                errEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-red-50 border-red-200 text-red-600';
                 errEl.textContent = 'يرجى إكمال جميع الحقول (كلمة المرور 6 أحرف على الأقل)';
                 errEl.classList.remove('hidden'); return;
             }
@@ -596,14 +621,25 @@
                 // تحديث اسم المستخدم
                 await updateProfile(userCredential.user, { displayName: name });
                 
-                userId = auth.currentUser.uid;
-                updateUserUI();
-                document.getElementById('initial-loader').classList.remove('hidden');
-                document.getElementById('loader-text').textContent = 'جاري إعداد مساحتك...';
-                setupRealtimeSync();
-                showToast('تم إنشاء حسابك بنجاح!', 'success');
+                // إرسال رسالة التفعيل
+                await sendEmailVerification(userCredential.user);
+                
+                // تسجيل خروج المستخدم فوراً لانتظار التفعيل
+                await signOut(auth);
+                
+                btn.disabled = false;
+                btn.innerHTML = 'إنشاء الحساب <i class="fas fa-user-plus hidden" id="reg-spinner"></i>';
+                
+                // العودة لشاشة الدخول وعرض رسالة نجاح واضحة
+                window.toggleAuthView('login');
+                const loginErrEl = document.getElementById('auth-error');
+                loginErrEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-green-50 border-green-200 text-green-800';
+                loginErrEl.innerHTML = '<b>تم إنشاء حسابك بنجاح! 🎉</b><br>لقد أرسلنا رابط التفعيل إلى بريدك الإلكتروني. يرجى التفعيل قبل تسجيل الدخول.';
+                loginErrEl.classList.remove('hidden');
+                
             } catch(e) {
                 console.error("Register Error:", e);
+                errEl.className = 'border px-4 py-2 rounded-lg text-sm mb-4 text-center bg-red-50 border-red-200 text-red-600';
                 if (e.code === 'auth/email-already-in-use') {
                     errEl.textContent = 'البريد الإلكتروني مسجل مسبقاً. يرجى تسجيل الدخول.';
                 } else if(e.code === 'auth/weak-password') {
@@ -613,7 +649,7 @@
                 }
                 errEl.classList.remove('hidden');
                 btn.disabled = false;
-                btn.innerHTML = 'إنشاء الحساب';
+                btn.innerHTML = 'إنشاء الحساب <i class="fas fa-user-plus hidden" id="reg-spinner"></i>';
             }
         }
 
@@ -1159,10 +1195,43 @@
         }
 
         window.exportToExcel = function() {
-            if(goals.length === 0) { showToast("لا توجد بيانات", "error"); return; }
-            let csv = "data:text/csv;charset=utf-8,\uFEFFالعنوان,التصنيف,الأهمية,الحالة,التقدم,الوصف\n";
-            goals.forEach(g => csv += `"${(g.title||"").replace(/"/g, '""')}","${CATEGORIES[g.category]?.label}","${PRIORITIES[g.priority]?.label}","${g.status==='completed'?'مكتمل':'قيد التنفيذ'}","${calculateGoalProgress(g)}%","${(g.description||"").replace(/\n/g, " ")}"\n`);
-            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", "Goals.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            if(goals.length === 0) { showToast("لا توجد بيانات لتصديرها", "error"); return; }
+            
+            // 1. تجهيز البيانات وتنسيقها بشكل جميل
+            const excelData = goals.map(g => ({
+                "عنوان الهدف": g.title || "بدون عنوان",
+                "التصنيف": CATEGORIES[g.category]?.label || "غير محدد",
+                "درجة الأهمية": PRIORITIES[g.priority]?.label || "غير محدد",
+                "حالة الإنجاز": g.status === 'completed' ? 'مكتمل ✅' : 'قيد التنفيذ ⏳',
+                "نسبة التقدم": calculateGoalProgress(g) + "%",
+                "الموعد النهائي": g.deadline ? new Date(g.deadline).toLocaleDateString('ar-EG') : "مفتوح",
+                "تاريخ إضافة الهدف": new Date(g.createdAt).toLocaleDateString('ar-EG'),
+                "التفاصيل / الوصف": g.description || "لا يوجد وصف"
+            }));
+
+            // 2. تحويل البيانات إلى ورقة عمل (Worksheet)
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            
+            // 3. تنسيق الملف (ضبط العرض من اليمين لليسار، وتوسيع الأعمدة لتناسب النص)
+            worksheet['!dir'] = 'rtl';
+            worksheet['!cols'] = [
+                { wch: 35 }, // عمود العنوان (عريض)
+                { wch: 15 }, // التصنيف
+                { wch: 15 }, // درجة الأهمية
+                { wch: 15 }, // حالة الإنجاز
+                { wch: 12 }, // نسبة التقدم
+                { wch: 15 }, // الموعد النهائي
+                { wch: 15 }, // تاريخ الإضافة
+                { wch: 50 }  // الوصف (عريض جداً)
+            ];
+
+            // 4. إنشاء ملف الإكسل (Workbook) وإضافة الورقة إليه
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "أهدافي الشخصية");
+
+            // 5. تحميل الملف (ينشئ ملف .xlsx حقيقي ومنسق)
+            XLSX.writeFile(workbook, "مسار_الإنجاز_بيانات.xlsx");
+            showToast("تم تصدير الإكسل بنجاح", "success");
         }
 
         window.syncGoalToWebhook = async function(requestData) {
