@@ -359,11 +359,19 @@
 
         // Configuration
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'personal-goal-tracker';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            // Your config goes here when hosting externally
+        
+        // --- مفاتيح Firebase الخاصة بك ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8lIhlMJ7maB96Lu4AgkYctf9OGCzOVuQ",
+            authDomain: "goal-tracker-f721f.firebaseapp.com",
+            projectId: "goal-tracker-f721f",
+            storageBucket: "goal-tracker-f721f.firebasestorage.app",
+            messagingSenderId: "1051713233367",
+            appId: "1:1051713233367:web:7d12d94f820586270eeb92",
+            measurementId: "G-6S7FQ6J7J0"
         };
         
-        // Google Sheet Webhook (Default provided by user)
+        // Google Sheet Webhook
         const DEFAULT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzoaGdI4btY8GoCJk70oE_GT5HMhZmBrJ8RBb7j8g0yDUB64UtekjjQHAOQdcon6BLO/exec';
 
         let app, db, auth, userId;
@@ -390,10 +398,14 @@
             setupEventListeners();
             
             try {
+                // محاولة تهيئة Firebase
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-
+                
+                // تفعيل وضع "العمل بدون اتصال" مؤقتاً إذا فشلت التهيئة الأولية
+                // هذا يضمن أن واجهة المستخدم ستظهر حتى لو كان هناك خطأ في Firebase
+                
                 // تحقق إذا كان الرابط هو رابط "مشاركة هدف"
                 const urlParams = new URLSearchParams(window.location.search);
                 const sharedGoalId = urlParams.get('shared_goal');
@@ -415,25 +427,33 @@
                 await auth.authStateReady();
                 
                 if (auth.currentUser) {
-                    // المستخدم مسجل دخوله مسبقاً
                     userId = auth.currentUser.uid;
                     updateUserUI();
                     setupRealtimeSync();
                 } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    // الدخول التلقائي في بيئة التطوير
                     await signInWithCustomToken(auth, __initial_auth_token);
                     userId = auth.currentUser.uid;
                     updateUserUI();
                     setupRealtimeSync();
                 } else {
-                    // مستخدم جديد في استضافة خارجية، إظهار شاشة تسجيل الدخول
                     document.getElementById('initial-loader').classList.add('hidden');
                     document.getElementById('auth-overlay').classList.remove('hidden');
                 }
 
             } catch (error) {
-                console.error("Init Error:", error);
-                document.getElementById('initial-loader').innerHTML = '<p class="text-red-500 font-bold p-4 text-center">حدث خطأ في الاتصال بالسحابة. يرجى التحقق من اتصالك.</p>';
+                console.error("Firebase Init Error:", error);
+                console.warn("Falling back to local mode...");
+                // إذا فشل Firebase لأي سبب، نظهر الواجهة على الأقل للمحاولة المحلية
+                document.getElementById('initial-loader').classList.add('hidden');
+                document.getElementById('auth-overlay').classList.remove('hidden');
+                
+                // رسالة توضيحية للمستخدم
+                const errEl = document.getElementById('auth-error');
+                errEl.innerHTML = 'يبدو أن هناك مشكلة في إعدادات السحابة حالياً. لا يزال بإمكانك <b>المتابعة كزائر</b> لتجربة المنصة محلياً.';
+                errEl.classList.remove('hidden');
+                errEl.classList.replace('bg-red-50', 'bg-yellow-50');
+                errEl.classList.replace('text-red-600', 'text-yellow-700');
+                errEl.classList.replace('border-red-200', 'border-yellow-200');
             }
         }
 
@@ -455,8 +475,39 @@
                 updateUserUI();
                 document.getElementById('initial-loader').classList.remove('hidden');
                 setupRealtimeSync();
+                showToast('تم تسجيل الدخول بنجاح', 'success');
             } catch(e) {
-                errEl.textContent = 'بيانات الدخول غير صحيحة';
+                console.error("Auth Error:", e);
+                errEl.textContent = 'بيانات الدخول غير صحيحة أو الحساب غير موجود';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        window.handleRegister = async function() {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            const errEl = document.getElementById('auth-error');
+            
+            if(!email || pass.length < 6) {
+                errEl.textContent = 'أدخل بريد صحيح وكلمة مرور (6 أحرف على الأقل)';
+                errEl.classList.remove('hidden'); return;
+            }
+
+            try {
+                errEl.classList.add('hidden');
+                await createUserWithEmailAndPassword(auth, email, pass);
+                userId = auth.currentUser.uid;
+                updateUserUI();
+                document.getElementById('initial-loader').classList.remove('hidden');
+                setupRealtimeSync();
+                showToast('تم إنشاء حسابك السري بنجاح!', 'success');
+            } catch(e) {
+                console.error("Register Error:", e);
+                if (e.code === 'auth/email-already-in-use') {
+                    errEl.textContent = 'البريد الإلكتروني مسجل مسبقاً. الرجاء تسجيل الدخول.';
+                } else {
+                    errEl.textContent = 'حدث خطأ أثناء إنشاء الحساب. تأكد من صحة البيانات.';
+                }
                 errEl.classList.remove('hidden');
             }
         }
@@ -493,7 +544,25 @@
                 document.getElementById('initial-loader').classList.remove('hidden');
                 setupRealtimeSync();
                 showToast('تم الدخول كزائر', 'info');
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error("Guest login failed:", e);
+                // Fallback to purely local mode if anonymous auth fails (e.g. not enabled in console)
+                console.warn("Using pure local fallback");
+                userId = 'local-guest-user';
+                updateUserUI();
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('initial-loader').classList.add('hidden');
+                
+                // Load local data if available
+                const localData = localStorage.getItem('local_goals');
+                if(localData) {
+                    goals = JSON.parse(localData);
+                } else {
+                    goals = [];
+                }
+                renderCurrentView();
+                showToast('تم الدخول في وضع عدم الاتصال (بيانات محلية)', 'info');
+            }
         }
 
         window.logout = async function() {
@@ -504,6 +573,12 @@
         // --- STREAMING_CHUNK:Database Sync (Private) ---
         function setupRealtimeSync() {
             if (!userId) return;
+            
+            if (userId === 'local-guest-user') {
+                // نحن في وضع عدم الاتصال، لا داعي لمحاولة المزامنة
+                return;
+            }
+
             // استخدام المسار الخاص للمستخدم (Private Data Vault)
             const goalsRef = collection(db, 'artifacts', appId, 'users', userId, 'goals');
             
@@ -790,6 +865,22 @@
                 goalData.status = 'completed'; goalData.history.push({ action: 'completed', details: 'إنجاز الهدف بالكامل!', date: new Date().toISOString() });
             }
 
+            if (userId === 'local-guest-user') {
+                 // حفظ محلي
+                 const existingIndex = goals.findIndex(g => g.id === id);
+                 if (existingIndex > -1) {
+                     goals[existingIndex] = goalData;
+                 } else {
+                     goals.push(goalData);
+                 }
+                 localStorage.setItem('local_goals', JSON.stringify(goals));
+                 showToast('تم الحفظ محلياً بنجاح', 'success');
+                 window.closeModal('goal-modal');
+                 renderCurrentView();
+                 window.syncGoalToWebhook({ action: 'save', id: id, data: goalData });
+                 return;
+            }
+
             try {
                 // حفظ الهدف في المسار الخاص
                 let goalRef = doc(db, 'artifacts', appId, 'users', userId, 'goals', id);
@@ -883,6 +974,17 @@
                 updatedGoal.status = 'active'; updatedGoal.history.push({ action: 'reopened', details: 'إعادة فتح الهدف', date: new Date().toISOString() });
             }
 
+            if (userId === 'local-guest-user') {
+                // تحديث محلي
+                const existingIndex = goals.findIndex(g => g.id === goalId);
+                if (existingIndex > -1) goals[existingIndex] = updatedGoal;
+                localStorage.setItem('local_goals', JSON.stringify(goals));
+                window.openGoalDetails(goalId); // تحديث النافذة
+                renderCurrentView(); // تحديث القائمة
+                window.syncGoalToWebhook({ action: 'update_milestone', id: goalId, data: updatedGoal });
+                return;
+            }
+
             try {
                 let goalRef = doc(db, 'artifacts', appId, 'users', userId, 'goals', goalId);
                 if(isSharedMode) goalRef = doc(db, 'artifacts', appId, 'public', 'data', 'shared_goals', goalId);
@@ -909,6 +1011,16 @@
 
         window.deleteGoal = async function(id) {
             if(!userId) return;
+            
+            if (userId === 'local-guest-user') {
+                goals = goals.filter(g => g.id !== id);
+                localStorage.setItem('local_goals', JSON.stringify(goals));
+                window.closeModal('details-modal'); showToast('تم الحذف', 'success');
+                renderCurrentView();
+                window.syncGoalToWebhook({ action: 'delete', id: id });
+                return;
+            }
+
             try {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'goals', id));
                 window.closeModal('details-modal'); showToast('تم الحذف', 'success');
